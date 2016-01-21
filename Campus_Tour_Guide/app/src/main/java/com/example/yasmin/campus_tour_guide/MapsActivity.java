@@ -5,7 +5,9 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -26,9 +28,11 @@ import java.util.ArrayList;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap campusMap; //Google Map Object
+    private GoogleApiClient mGoogleApiClient;
     protected static final String TAG = "MainActivity";
     protected ArrayList<Geofence> mGeofenceList; //List of geofences used
     private PendingIntent mGeofencePendingIntent; //Used when requesting to add or remove geofences ---- MIGHT NOT NEED
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +47,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        //Get geofences that will be used (tour stops)
         populateGeofences();
+
+        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, getGeofencingRequest(),getGeofencePendingIntent());
+
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -72,6 +92,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
+
+    /**This method contains geofence data, all of the tour stops**/
+
+    public void populateGeofences() {
+        mGeofenceList.add(new Geofence.Builder()
+                // Set the request ID of the geofence. This is a string to identify this
+                // geofence.
+                .setRequestId("Home")
+
+                        //(latitude, longitude, radius_in_meters)
+                .setCircularRegion(51.557935, 0.002336, 100) //Home
+                        //.setCircularRegion(51.522693, -0.041864, 100) //Electronics Lab
+                        //experiation in milliseconds
+                .setExpirationDuration(300000)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                        Geofence.GEOFENCE_TRANSITION_EXIT)
+                .build());
+    }
+
 
     /***Specify geofences to monitor and set how geofence events are triggered***/
 
@@ -103,21 +142,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 FLAG_UPDATE_CURRENT);
     }
 
-    public void populateGeofences() {
-        mGeofenceList.add(new Geofence.Builder()
-                // Set the request ID of the geofence. This is a string to identify this
-                // geofence.
-                .setRequestId("Home")
-
-                 //(latitude, longitude, radius_in_meters)
-                .setCircularRegion(51.557935, 0.002336, 10)
-
-                //experiation in milliseconds
-                .setExpirationDuration(300000)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build());
+    private void removeGeofences() {
+        LocationServices.GeofencingApi.removeGeofences(
+                mGoogleApiClient,
+                getGeofencePendingIntent()
+        );
     }
+
+
 
 
 }
