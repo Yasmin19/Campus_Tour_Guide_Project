@@ -1,11 +1,15 @@
 package com.example.yasmin.campus_tour_guide;
 
-import android.location.Criteria;
-import android.location.LocationManager;
-import android.support.v4.app.FragmentActivity;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -14,18 +18,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.location.Geofence;
-import android.app.IntentService;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
+
 import java.util.ArrayList;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ResultCallback<Status> {
 
     private GoogleMap campusMap; //Google Map Object
     private GoogleApiClient mGoogleApiClient;
@@ -50,37 +47,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Get geofences that will be used (tour stops)
         populateGeofences();
 
-        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, getGeofencingRequest(),getGeofencePendingIntent());
+        //Add geofences
 
+
+        /* Program crashes at this point*/
+        LocationServices.GeofencingApi.addGeofences(
+                mGoogleApiClient,
+                getGeofencingRequest(),
+                getGeofencePendingIntent()
+        ).setResultCallback(this);
+        /*end of problem*/
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         campusMap = googleMap;
-
-       /*PolygonOptions path = campusMap.addPolygon(new PolygonOptions()
-                       .add(new LatLng(51.522352, -0.042789))
-                        .add (new LatLng(51.522723, -0.042991))
-        Polyline polyline = campusMap.addPolyline(path);*/
-
-
         campusMap.setMyLocationEnabled(true); //Enable My Location Layer
 
         //Get latitude and longitude of current location
-        LatLng point = new LatLng(0, 0);
+        LatLng point = new LatLng(51.557935, 0.002336);
         campusMap.addMarker(new MarkerOptions().position(point).title("Current Position"));
         //Add new marker for entrance
         campusMap.addMarker(new MarkerOptions()
@@ -89,7 +75,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .position(new LatLng(51.522723, -0.042991)).title("ITL"));
 
         campusMap.moveCamera(CameraUpdateFactory.newLatLng(point)); //Moves map according to the update with an animation
-
 
     }
 
@@ -102,13 +87,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setRequestId("Home")
 
                         //(latitude, longitude, radius_in_meters)
-                .setCircularRegion(51.557935, 0.002336, 100) //Home
+                .setCircularRegion(51.557935, 0.002336, 10000) //Home
                         //.setCircularRegion(51.522693, -0.041864, 100) //Electronics Lab
-                        //experiation in milliseconds
+                        //expiration in milliseconds
                 .setExpirationDuration(300000)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build());
+
     }
 
 
@@ -121,7 +107,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //GEOFENCE_TRANSITION_ENTER notification when geofence added if device already inside geofence
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         /*NOTE: INITIAL_TRIGGER_DWELL can also be used, triggers only when user stops for certain amount of time within geofence - help reduce alert spam*/
-
 
         //Add geofences to be monitored by geofencing service
         builder.addGeofences(mGeofenceList);
@@ -138,8 +123,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
         // calling addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void removeGeofences() {
@@ -149,29 +133,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         );
     }
 
-
-
+    //Runs when result of calling addGeofences() and removeGeofences() becomes available
+    public void onResult(Status status) {
+        Toast toast = Toast.makeText(this, "Added Geofences", Toast.LENGTH_SHORT);
+        toast.show();
+    }
 
 }
 
 
-
-
-
-/*
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder = new GeofencingRequest.Builder();
-
-    }
-
-    public void loadCurrentLocation() {
-        campusMap = googleMap;
-
-        String location = mapFragment.getText().toString();
-
-        LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
-        campusMap.addMarker(new MarkerOptions().position(point).title(""));
-        campusMap.moveCamera(CameraUpdateFactory.newLatLng(point));
-    }
-*/
 
