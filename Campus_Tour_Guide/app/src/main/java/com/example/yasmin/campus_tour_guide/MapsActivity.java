@@ -18,11 +18,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 
 import java.util.ArrayList;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ResultCallback<Status> {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap campusMap; //Google Map Object
     private GoogleApiClient mGoogleApiClient;
@@ -30,14 +31,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected ArrayList<Geofence> mGeofenceList; //List of geofences used
     private PendingIntent mGeofencePendingIntent; //Used when requesting to add or remove geofences ---- MIGHT NOT NEED
 
+    private GeofenceStore mGeofenceStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        //Empty list for storing geofences
-        mGeofenceList = new ArrayList<Geofence>();
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -47,16 +48,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Get geofences that will be used (tour stops)
         populateGeofences();
 
-        //Add geofences
 
-
-        /* Program crashes at this point*/
+        /* Program crashes at this point
         LocationServices.GeofencingApi.addGeofences(
                 mGoogleApiClient,
                 getGeofencingRequest(),
                 getGeofencePendingIntent()
         ).setResultCallback(this);
         /*end of problem*/
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        mGeofenceStore.disconnect();
+        super.onStop();
     }
 
 
@@ -81,6 +91,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**This method contains geofence data, all of the tour stops**/
 
     public void populateGeofences() {
+
+        //Empty list for storing geofences
+        mGeofenceList = new ArrayList<Geofence>();
+
         mGeofenceList.add(new Geofence.Builder()
                 // Set the request ID of the geofence. This is a string to identify this
                 // geofence.
@@ -95,11 +109,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build());
 
+        //Add geofences to GeofenceStore obect
+        mGeofenceStore = new GeofenceStore(this, mGeofenceList); //Send over context and geofence list
     }
 
 
     /***Specify geofences to monitor and set how geofence events are triggered***/
 
+  /*
     private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
 
@@ -109,12 +126,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         /*NOTE: INITIAL_TRIGGER_DWELL can also be used, triggers only when user stops for certain amount of time within geofence - help reduce alert spam*/
 
         //Add geofences to be monitored by geofencing service
-        builder.addGeofences(mGeofenceList);
+   //     builder.addGeofences(mGeofenceList);
 
         //Return a GeofencingRequest
-        return builder.build();
-    }
+    //    return builder.build();
+   // }
 
+    /*
     private PendingIntent getGeofencePendingIntent() {
         // Reuse the PendingIntent if we already have it.
         if (mGeofencePendingIntent != null) {
@@ -138,6 +156,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Toast toast = Toast.makeText(this, "Added Geofences", Toast.LENGTH_SHORT);
         toast.show();
     }
+
+    */
 
 }
 
