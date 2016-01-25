@@ -33,12 +33,12 @@ public class GeofenceStore implements ConnectionCallbacks, OnConnectionFailedLis
     private GoogleApiClient mGoogleApiClient;
     private ArrayList<Geofence> mGeofences;
     private GeofencingRequest mGeofencingRequest;
-    private LocationRequest mLocationRequest;
     private PendingIntent mGeofencePendingIntent; //Used when requesting to add or remove geofences
 
     public GeofenceStore(Context context, ArrayList<Geofence> geofences) {
         mContext = context;
         mGeofences = new ArrayList<Geofence>(geofences);
+        mGeofencePendingIntent = null;
 
         // Build a new GoogleApiClient, specify that we want to use LocationServices
         // by adding the API to the client, specify the connection callbacks are in
@@ -49,11 +49,13 @@ public class GeofenceStore implements ConnectionCallbacks, OnConnectionFailedLis
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        mGoogleApiClient.connect();
     }
 
     //Runs when result of calling addGeofences() and removeGeofences() becomes available
     @Override
     public void onResult(Status result) {
+        //this works
         if (result.isSuccess()) {
             Log.v(TAG, "Success!");
             Toast toast = Toast.makeText(mContext, "Added Geofences", Toast.LENGTH_SHORT);
@@ -77,7 +79,21 @@ public class GeofenceStore implements ConnectionCallbacks, OnConnectionFailedLis
 
     @Override
     public void onConnected(Bundle connectionHint) {
+    /*Build a GeofencingRequest and add geofences that we want to monitor */
 
+        //Currently conected, need to create Geofecning Request with geofences we have stored
+        mGeofencingRequest = new GeofencingRequest.Builder().addGeofences(
+                mGeofences).build();
+
+        mGeofencePendingIntent = createRequestPendingIntent();
+
+        // Submitting the request to monitor geofences.
+        PendingResult<Status> pendingResult = LocationServices.GeofencingApi
+                .addGeofences(mGoogleApiClient, mGeofencingRequest,
+                        mGeofencePendingIntent);
+
+        // Set the result callbacks listener to this class.
+        pendingResult.setResultCallback(this);
     }
     @Override
     public void onConnectionSuspended(int cause) {

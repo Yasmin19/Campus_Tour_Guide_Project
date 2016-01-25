@@ -7,18 +7,13 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 
 import java.util.ArrayList;
 
@@ -28,34 +23,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap campusMap; //Google Map Object
     private GoogleApiClient mGoogleApiClient;
     protected static final String TAG = "MainActivity";
-    protected ArrayList<Geofence> mGeofenceList; //List of geofences used
-    private PendingIntent mGeofencePendingIntent; //Used when requesting to add or remove geofences ---- MIGHT NOT NEED
-
-    private GeofenceStore mGeofenceStore;
+    ArrayList<Geofence> mGeofenceList; //List of geofences used
+    public GeofenceStore mGeofenceStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //Get geofences that will be used (tour stops)
+        //Build geofences that will be used (tour stops)
         populateGeofences();
 
-
-        /* Program crashes at this point
-        LocationServices.GeofencingApi.addGeofences(
-                mGoogleApiClient,
-                getGeofencingRequest(),
-                getGeofencePendingIntent()
-        ).setResultCallback(this);
-        /*end of problem*/
     }
 
     @Override
@@ -65,7 +48,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onStop() {
-        mGeofenceStore.disconnect();
+        //mGeofenceStore.disconnect();
         super.onStop();
     }
 
@@ -101,7 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setRequestId("Home")
 
                         //(latitude, longitude, radius_in_meters)
-                .setCircularRegion(51.557935, 0.002336, 10000) //Home
+                .setCircularRegion(51.557935, 0.002336, 100) //Home
                         //.setCircularRegion(51.522693, -0.041864, 100) //Electronics Lab
                         //expiration in milliseconds
                 .setExpirationDuration(300000)
@@ -111,54 +94,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Add geofences to GeofenceStore obect
         mGeofenceStore = new GeofenceStore(this, mGeofenceList); //Send over context and geofence list
+
     }
-
-
-    /***Specify geofences to monitor and set how geofence events are triggered***/
-
-  /*
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-
-        //INITIAL_TRIGGER_ENTER flag indicates geofencing service should trigger
-        //GEOFENCE_TRANSITION_ENTER notification when geofence added if device already inside geofence
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        /*NOTE: INITIAL_TRIGGER_DWELL can also be used, triggers only when user stops for certain amount of time within geofence - help reduce alert spam*/
-
-        //Add geofences to be monitored by geofencing service
-   //     builder.addGeofences(mGeofenceList);
-
-        //Return a GeofencingRequest
-    //    return builder.build();
-   // }
-
-    /*
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-        // calling addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private void removeGeofences() {
-        LocationServices.GeofencingApi.removeGeofences(
-                mGoogleApiClient,
-                getGeofencePendingIntent()
-        );
-    }
-
-    //Runs when result of calling addGeofences() and removeGeofences() becomes available
-    public void onResult(Status status) {
-        Toast toast = Toast.makeText(this, "Added Geofences", Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    */
-
 }
 
 
