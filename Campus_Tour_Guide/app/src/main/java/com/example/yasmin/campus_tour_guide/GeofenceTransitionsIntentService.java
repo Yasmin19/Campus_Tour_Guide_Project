@@ -13,6 +13,8 @@ import android.widget.Toast;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
+import java.util.List;
+
 
 /**
  * Listener for geofence transition changes
@@ -53,33 +55,30 @@ public class GeofenceTransitionsIntentService extends IntentService {
         } else {
             // Get the transition type, either: entry or exit
             int geofenceTransition = geofencingEvent.getGeofenceTransition();
+            String title = "";
 
             switch(geofenceTransition) {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
-                    //Toast toast = Toast.makeText(this, "It worked, you're at home", Toast.LENGTH_SHORT);
-                    //toast.show();
+                    title = "Geofence Entered";
                     break;
                 case Geofence.GEOFENCE_TRANSITION_EXIT:
-                    //toast = Toast.makeText(this, "You've left", Toast.LENGTH_SHORT);
-                    //toast.show();
+                    title = "Geofence Exited";
                     break;
                 default:
-                   // toast = Toast.makeText(this, "Unknown geofence", Toast.LENGTH_SHORT);
-                   // toast.show();
+                    title = "Unknown";
             }
-            sendNotification(this, "Home", "It worked, you're at home");
+            sendNotification(this, getTriggeredGeofence(intent), title);
         }
     }
 
     private void sendNotification(Context context, String notificationText, String notificationTitle) {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.home)
+                .setSmallIcon(R.drawable.queenmary)
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationText)
-                //.setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
-                .setAutoCancel(false);
+                .setAutoCancel(true);
 
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
@@ -87,14 +86,21 @@ public class GeofenceTransitionsIntentService extends IntentService {
         notificationManager.notify(0,notificationBuilder.build());
 
     }
-    /*
-    private String getTriggeringGeofences(Intent intent) {
+
+    private String getTriggeredGeofence(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         List<Geofence> geofences = geofencingEvent.getTriggeringGeofences();
 
-        String[]
+        //Create array containing id's size of geofences list
+        String[] geofenceIds = new String[geofences.size()];
+
+        for(int i=0; i<geofences.size(); i++) {
+            geofenceIds[i] = geofences.get(i).getRequestId();
+        }
+
+        return TextUtils.join(", ", geofenceIds); //return id's of geofence(s) seperated by commas
     }
-    */
+
 }
 
 

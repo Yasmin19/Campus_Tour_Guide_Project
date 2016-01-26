@@ -24,6 +24,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleApiClient mGoogleApiClient;
     protected static final String TAG = "MainActivity";
     ArrayList<Geofence> mGeofenceList; //List of geofences used
+    ArrayList<String> mGeofenceNames; //List of geofence names
+    ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
     public GeofenceStore mGeofenceStore;
 
     @Override
@@ -63,9 +65,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         campusMap.addMarker(new MarkerOptions().position(point).title("Current Position"));
         //Add new marker for entrance
         campusMap.addMarker(new MarkerOptions()
-                .position(new LatLng(51.522352, -0.042789)).title("Entrance"));
+                .position(new LatLng(51.522352, -0.042789)).title("Stepney Green Entrance"));
         campusMap.addMarker(new MarkerOptions()
                 .position(new LatLng(51.522723, -0.042991)).title("ITL"));
+        campusMap.addMarker(new MarkerOptions()
+                .position(new LatLng(51.522640, -0.041203)).title("Engineering Building"));
 
         campusMap.moveCamera(CameraUpdateFactory.newLatLng(point)); //Moves map according to the update with an animation
 
@@ -76,24 +80,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void populateGeofences() {
 
         //Empty list for storing geofences
+        mGeofenceNames = new ArrayList<String>();
+        mGeofenceCoordinates = new ArrayList <LatLng>();
+        //mGeofenceRadius = new ArrayList<Integer>(); --Not needed for now
         mGeofenceList = new ArrayList<Geofence>();
 
-        mGeofenceList.add(new Geofence.Builder()
-                // Set the request ID of the geofence. This is a string to identify this
-                // geofence.
-                .setRequestId("Home")
+        mGeofenceNames.add("Home");
+        mGeofenceNames.add("Stepney Green Entrance");
+        mGeofenceNames.add("ITL");
+        mGeofenceNames.add("Engineering Building");
 
-                        //(latitude, longitude, radius_in_meters)
-                .setCircularRegion(51.557935, 0.002336, 100) //Home
-                        //.setCircularRegion(51.522693, -0.041864, 100) //Electronics Lab
-                        //expiration in milliseconds
-                .setExpirationDuration(300000)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build());
+        mGeofenceCoordinates.add(new LatLng(51.557935, 0.002336));
+        mGeofenceCoordinates.add(new LatLng(51.522352, -0.042789));
+        mGeofenceCoordinates.add(new LatLng(51.522723, -0.042991));
+        mGeofenceCoordinates.add(new LatLng(51.522640, -0.041203));
 
-        //Add geofences to GeofenceStore obect
-        mGeofenceStore = new GeofenceStore(this, mGeofenceList); //Send over context and geofence list
+
+        for(int i=0; i<mGeofenceNames.size(); i++) {
+            mGeofenceList.add(new Geofence.Builder()
+                    // Set the request ID of the geofence. This is a string to identify this
+                    // geofence.
+                    .setRequestId(mGeofenceNames.get(i))
+                            //(latitude, longitude, radius_in_meters)
+                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 50)
+                            //expiration in milliseconds
+                    .setExpirationDuration(300000)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build());
+        }
+            //Add geofences to GeofenceStore obect
+            mGeofenceStore = new GeofenceStore(this, mGeofenceList); //Send over context and geofence list
 
     }
 }
