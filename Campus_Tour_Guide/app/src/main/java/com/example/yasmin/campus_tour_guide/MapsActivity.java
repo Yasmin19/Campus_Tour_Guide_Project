@@ -2,6 +2,7 @@ package com.example.yasmin.campus_tour_guide;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
@@ -14,6 +15,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
@@ -27,6 +29,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<String> mGeofenceNames; //List of geofence names
     ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
     public GeofenceStore mGeofenceStore;
+
+    private static final LatLng MAYNARD_HOUSE = new LatLng(51.525103, -0.039015);
+    private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
+    private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525656, -0.039534);
+    private static final LatLng SANTANDER = new LatLng(51.526163, -0.039740);
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,21 +69,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         campusMap = googleMap;
         campusMap.setMyLocationEnabled(true); //Enable My Location Layer
 
-        //Get latitude and longitude of current location
-        LatLng point = new LatLng(51.557935, 0.002336);
-        campusMap.addMarker(new MarkerOptions().position(point).title("Current Position"));
         //Add new marker for entrance
+        /*
         campusMap.addMarker(new MarkerOptions()
                 .position(new LatLng(51.522352, -0.042789)).title("Stepney Green Entrance"));
         campusMap.addMarker(new MarkerOptions()
                 .position(new LatLng(51.522723, -0.042991)).title("ITL"));
         campusMap.addMarker(new MarkerOptions()
                 .position(new LatLng(51.522640, -0.041203)).title("Engineering Building"));
+        */
+        campusMap.addMarker(new MarkerOptions()
+                .position(MAYNARD_HOUSE).title("Maynard House"));
+        campusMap.addMarker(new MarkerOptions()
+                .position(VAREY_CURVE).title("Varey House/The Curve"));
+        campusMap.addMarker(new MarkerOptions()
+                .position(VILLAGE_BEAUMONT).title("Village Shop/Beaumont Court"));
+        campusMap.addMarker(new MarkerOptions()
+                .position(SANTANDER).title("Santander Bank"));
 
-        campusMap.moveCamera(CameraUpdateFactory.newLatLng(point)); //Moves map according to the update with an animation
+        addRoute();
+        campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT,17)); //Moves map according to the update with an animation
 
     }
 
+    private void addRoute(){
+
+        campusMap.addPolyline((new PolylineOptions())
+                .add(MAYNARD_HOUSE, VAREY_CURVE, VILLAGE_BEAUMONT, SANTANDER)
+                .width(5)
+                .color(Color.BLUE)
+                .geodesic(true));
+
+    }
     /**This method contains geofence data, all of the tour stops**/
 
     public void populateGeofences() {
@@ -85,15 +111,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //mGeofenceRadius = new ArrayList<Integer>(); --Not needed for now
         mGeofenceList = new ArrayList<Geofence>();
 
-        mGeofenceNames.add("Home");
-        mGeofenceNames.add("Stepney Green Entrance");
-        mGeofenceNames.add("ITL");
-        mGeofenceNames.add("Engineering Building");
+        mGeofenceNames.add("Maynard House");
+        mGeofenceNames.add("Varey House/The Curve");
+        mGeofenceNames.add("Village Shop/Beaumont Court");
+        mGeofenceNames.add("Santander Bank");
 
-        mGeofenceCoordinates.add(new LatLng(51.557935, 0.002336));
-        mGeofenceCoordinates.add(new LatLng(51.522352, -0.042789));
-        mGeofenceCoordinates.add(new LatLng(51.522723, -0.042991));
-        mGeofenceCoordinates.add(new LatLng(51.522640, -0.041203));
+        mGeofenceCoordinates.add(MAYNARD_HOUSE);
+        mGeofenceCoordinates.add(VAREY_CURVE);
+        mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
+        mGeofenceCoordinates.add(SANTANDER);
 
 
         for(int i=0; i<mGeofenceNames.size(); i++) {
@@ -102,7 +128,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // geofence.
                     .setRequestId(mGeofenceNames.get(i))
                             //(latitude, longitude, radius_in_meters)
-                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 50)
+                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 15)
                             //expiration in milliseconds
                     .setExpirationDuration(300000)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
