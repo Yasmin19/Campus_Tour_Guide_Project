@@ -1,8 +1,11 @@
 package com.example.yasmin.campus_tour_guide;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
@@ -16,6 +19,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import java.lang.Object;
 
 import java.util.ArrayList;
 
@@ -31,8 +35,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public GeofenceStore mGeofenceStore;
 
     private static final LatLng MAYNARD_HOUSE = new LatLng(51.525103, -0.039015);
-    private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
-    private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525656, -0.039534);
+    //private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
+    private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
     private static final LatLng SANTANDER = new LatLng(51.526163, -0.039740);
 
 
@@ -69,19 +73,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         campusMap = googleMap;
         campusMap.setMyLocationEnabled(true); //Enable My Location Layer
 
-        //Add new marker for entrance
-        /*
-        campusMap.addMarker(new MarkerOptions()
-                .position(new LatLng(51.522352, -0.042789)).title("Stepney Green Entrance"));
-        campusMap.addMarker(new MarkerOptions()
-                .position(new LatLng(51.522723, -0.042991)).title("ITL"));
-        campusMap.addMarker(new MarkerOptions()
-                .position(new LatLng(51.522640, -0.041203)).title("Engineering Building"));
-        */
         campusMap.addMarker(new MarkerOptions()
                 .position(MAYNARD_HOUSE).title("Maynard House"));
-        campusMap.addMarker(new MarkerOptions()
-                .position(VAREY_CURVE).title("Varey House/The Curve"));
+       // campusMap.addMarker(new MarkerOptions()
+        //        .position(VAREY_CURVE).title("Varey House/The Curve"));
         campusMap.addMarker(new MarkerOptions()
                 .position(VILLAGE_BEAUMONT).title("Village Shop/Beaumont Court"));
         campusMap.addMarker(new MarkerOptions()
@@ -90,13 +85,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addRoute();
         campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT,17)); //Moves map according to the update with an animation
 
+        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        LocationListener mlocListener = new MyLocationListener();
+
+        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
     }
 
     private void addRoute(){
 
         campusMap.addPolyline((new PolylineOptions())
-                .add(MAYNARD_HOUSE, VAREY_CURVE, VILLAGE_BEAUMONT, SANTANDER)
-                .width(5)
+                .add(MAYNARD_HOUSE, new LatLng(51.525384, -0.039367),
+                        VILLAGE_BEAUMONT, SANTANDER)
+                .width(15)
                 .color(Color.BLUE)
                 .geodesic(true));
 
@@ -108,16 +108,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Empty list for storing geofences
         mGeofenceNames = new ArrayList<String>();
         mGeofenceCoordinates = new ArrayList <LatLng>();
-        //mGeofenceRadius = new ArrayList<Integer>(); --Not needed for now
         mGeofenceList = new ArrayList<Geofence>();
 
         mGeofenceNames.add("Maynard House");
-        mGeofenceNames.add("Varey House/The Curve");
+       //mGeofenceNames.add("Varey House/The Curve");
         mGeofenceNames.add("Village Shop/Beaumont Court");
         mGeofenceNames.add("Santander Bank");
 
         mGeofenceCoordinates.add(MAYNARD_HOUSE);
-        mGeofenceCoordinates.add(VAREY_CURVE);
+        //mGeofenceCoordinates.add(VAREY_CURVE);
         mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
         mGeofenceCoordinates.add(SANTANDER);
 
