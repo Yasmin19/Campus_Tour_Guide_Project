@@ -34,10 +34,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
     public GeofenceStore mGeofenceStore;
 
-    private static final LatLng MAYNARD_HOUSE = new LatLng(51.525103, -0.039015);
+    private static final LatLng MAYNARD_HOUSE = new LatLng(51.525095, -0.039004);
     //private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
     private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
-    private static final LatLng SANTANDER = new LatLng(51.526163, -0.039740);
+    private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
 
 
 
@@ -89,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationListener mlocListener = new MyLocationListener();
 
         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
     }
 
     private void addRoute(){
@@ -137,6 +138,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //Add geofences to GeofenceStore obect
             mGeofenceStore = new GeofenceStore(this, mGeofenceList); //Send over context and geofence list
 
+    }
+
+    public void route() {
+       ArrayList<LatLng> mRoute = new ArrayList <LatLng>();
+
+        mRoute.add(new LatLng(51.524855, -0.038531)); //Starting Point
+        mRoute.add(new LatLng(51.524905, -0.038653)); //10m
+        mRoute.add(new LatLng(51.524957, -0.038774)); //20m
+        mRoute.add(new LatLng(51.525015, -0.038886)); //30m
+        mRoute.add(new LatLng(51.525081, -0.038986)); //40m
+        mRoute.add(new LatLng(51.525149, -0.039074)); //50m
+        mRoute.add(new LatLng(51.525221, -0.039164)); //60m
+        mRoute.add(new LatLng(51.525295, -0.039247)); //70m
     }
 }
 
