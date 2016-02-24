@@ -1,17 +1,24 @@
 package com.example.yasmin.campus_tour_guide;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -38,7 +45,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
     private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
     private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
-
 
 
     @Override
@@ -85,9 +91,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addRoute();
         campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT,17)); //Moves map according to the update with an animation
 
+
         LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         LocationListener mlocListener = new MyLocationListener();
 
+        //Register the listener with Location Manager to receive location updates
         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
 
     }
@@ -100,6 +108,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .width(15)
                 .color(Color.BLUE)
                 .geodesic(true));
+
+        Location loc = new Location("Src");
+        loc.setLongitude(51.557912);
+        loc.setLatitude(0.002327);
+
+        Location dest = new Location("Dest");
+        dest.setLatitude(51.525095);
+        dest.setLongitude(-0.039004);
+
+        float degree = loc.bearingTo(dest);
+        Log.d("Bearing w/l", degree + " degrees");
 
     }
     /**This method contains geofence data, all of the tour stops**/
