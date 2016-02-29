@@ -29,6 +29,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.lang.Object;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -90,7 +92,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         addRoute();
         campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT,17)); //Moves map according to the update with an animation
-
 
         LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         LocationListener mlocListener = new MyLocationListener();
