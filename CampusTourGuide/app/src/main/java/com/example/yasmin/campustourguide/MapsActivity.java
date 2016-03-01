@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -40,6 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<String> mGeofenceNames; //List of geofence names
     ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
     public GeofenceStore mGeofenceStore;
+    public static EditText distanceField;
 
     private static final LatLng MAYNARD_HOUSE = new LatLng(51.525095, -0.039004);
     //private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
@@ -89,8 +91,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .position(SANTANDER).title("Santander Bank"));
 
         addRoute();
-        campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT,17)); //Moves map according to the update with an animation
+        campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT, 17)); //Moves map according to the update with an animation
 
+        distanceField = (EditText) findViewById(R.id.distanceField);
 
         LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         LocationListener mlocListener = new MyLocationListener();

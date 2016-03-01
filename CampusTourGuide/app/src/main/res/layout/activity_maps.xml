@@ -5,4 +5,22 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.yasmin.campustourguide.MapsActivity" />
+    tools:context="com.example.yasmin.campustourguide.MapsActivity" >
+
+    <Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="right|bottom"
+    android:text="Start"
+    android:padding="10dp"
+    android:layout_marginTop="20dp"
+    android:paddingRight="10dp"/>
+
+    <EditText
+        android:id="@+id/distanceField"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:editable="false"/>
+
+</fragment>

@@ -53,7 +53,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             int errorCode = geofencingEvent.getErrorCode();
             Log.e(TAG, "Location Services error: " + errorCode);
         } else {
-            // Get the transition type, either: entry or exit
+            // Get the transition type, either: entray or exit
             int geofenceTransition = geofencingEvent.getGeofenceTransition();
             String title = "";
 
