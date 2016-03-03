@@ -1,5 +1,6 @@
 package com.example.yasmin.campustourguide;
 
+import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
 import ioio.lib.api.PwmOutput;
@@ -7,8 +8,11 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+
+import android.app.Service;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -22,87 +26,75 @@ import android.widget.ToggleButton;
  */
 public class IOIO_OTG extends IOIOActivity {
 
-    private ToggleButton button_;
-    /**
-     * Called when the activity is first created. Here we normally initialize
-     * our GUI.
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-       // setContentView(R.layout.main);
-       // button_ = (ToggleButton) findViewById(R.id.button);
-    }
 
-    /**
+/*
      * This is the thread on which all the IOIO activity happens. It will be run
      * every time the application is resumed and aborted when it is paused. The
      * method setup() will be called right after a connection with the IOIO has
      * been established (which might happen several times!). Then, loop() will
      * be called repetitively until the IOIO gets disconnected.
      */
-    class Looper extends BaseIOIOLooper {
-        /** The on-board LED. */
-        private PwmOutput test_;
+            class Looper extends BaseIOIOLooper {
+                /** The on-board LED. */
+                private DigitalOutput test_;
 
-        /**
-         * Called every time a connection with IOIO has been established.
-         * Typically used to open pins.
-         *
-         * @throws ConnectionLostException
-         *             When IOIO connection is lost.
-         *
-         * @see ioio.lib.util.IOIOLooper-setup()
-         */
-        @Override
-        protected void setup() throws ConnectionLostException {
-            showVersions(ioio_, "IOIO connected!");
-            test_ = ioio_.openPwmOutput(12, 100);
-            enableUi(true);
-        }
+                /**
+                 * Called every time a connection with IOIO has been established.
+                 * Typically used to open pins.
+                 *
+                 * @throws ConnectionLostException
+                 *             When IOIO connection is lost.
+                 *
+                 * @see ioio.lib.util.IOIOLooper-setup()
+                 */
+                @Override
+                //This method is not called until
 
-        /**
-         * Called repetitively while the IOIO is connected.
-         *
-         * @throws ConnectionLostException
-         *             When IOIO connection is lost.
-         * @throws InterruptedException
-         * 				When the IOIO thread has been interrupted.
-         *
-         * @see ioio.lib.util.IOIOLooper#loop()
-         */
-        @Override
-        public void loop() throws ConnectionLostException, InterruptedException {
-            if (button_.isChecked()) {
-                test_.setPulseWidth(500);
-            }
-            else if (!button_.isChecked()) {
-                test_.setPulseWidth(0);
-            }
-            Thread.sleep(100);
-        }
+                public void setup() throws ConnectionLostException {
+                    showVersions(ioio_, "IOIO connected!");
+                   // test_ = ioio_.openDigitalOutput(12);
+                    test_ = ioio_.openDigitalOutput(0, true);
+                    enableUi(true);
+                }
 
-        /**
-         * Called when the IOIO is disconnected.
-         *
-         * @see ioio.lib.util.IOIOLooper#disconnected()
-         */
-        @Override
-        public void disconnected() {
-            enableUi(false);
-            toast("IOIO disconnected");
-        }
+                /**
+                 * Called repetitively while the IOIO is connected.
+                 *
+                 * @throws ConnectionLostException
+                 *             When IOIO connection is lost.
+                 * @throws InterruptedException
+                 * 				When the IOIO thread has been interrupted.
+                 *
+                 * @see ioio.lib.util.IOIOLooper#loop()
+                 */
+                @Override
+                public void loop() throws ConnectionLostException, InterruptedException {
+                    test_.write(MapsActivity.button_.isChecked());
+                    Thread.sleep(100);
+                }
 
-        /**
-         * Called when the IOIO is connected, but has an incompatible firmware version.
-         *
-         * @see ioio.lib.util.IOIOLooper#incompatible(IOIO)
-         */
-        @Override
-        public void incompatible() {
-            showVersions(ioio_, "Incompatible firmware version!");
-        }
-    }
+                /**
+                 * Called when the IOIO is disconnected.
+                 *
+                 * @see ioio.lib.util.IOIOLooper#disconnected()
+                 */
+                @Override
+                public void disconnected() {
+                    enableUi(false);
+                    toast("IOIO disconnected");
+                }
+
+                /**
+                 * Called when the IOIO is connected, but has an incompatible firmware version.
+                 *
+                 * @see ioio.lib.util.IOIOLooper#incompatible(IOIO)
+                 */
+                @Override
+                public void incompatible() {
+                    showVersions(ioio_, "Incompatible firmware version!");
+                }
+
+            } //END OF LOOPER CLASS
 
     /**
      * A method to create our IOIO thread.
@@ -129,12 +121,13 @@ public class IOIO_OTG extends IOIOActivity {
 
     private void toast(final String message) {
         final Context context = this;
-        runOnUiThread(new Runnable() {
+        Runnable runOnUiThread = new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             }
-        });
+        };
+
     }
 
     private int numConnected_ = 0;
@@ -146,15 +139,17 @@ public class IOIO_OTG extends IOIOActivity {
             public void run() {
                 if (enable) {
                     if (numConnected_++ == 0) {
-                        button_.setEnabled(true);
+                        MapsActivity.button_.setEnabled(true);
                     }
                 } else {
                     if (--numConnected_ == 0) {
-                        button_.setEnabled(false);
+                        MapsActivity.button_.setEnabled(false);
                     }
                 }
             }
         });
     }
+
+
 }
 

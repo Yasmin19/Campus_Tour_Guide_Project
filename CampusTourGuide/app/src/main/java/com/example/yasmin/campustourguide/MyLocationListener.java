@@ -53,7 +53,6 @@ public class MyLocationListener implements LocationListener {
         if ((Math.round(distance) %10) == 0){
             
         }
-
     }
 
     @Override

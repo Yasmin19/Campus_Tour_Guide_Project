@@ -14,8 +14,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
@@ -27,9 +29,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+
 import java.lang.Object;
 
 import java.util.ArrayList;
+
+import ioio.lib.api.DigitalOutput;
+import ioio.lib.api.IOIO;
+import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.IOIOActivity;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -42,17 +52,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
     public GeofenceStore mGeofenceStore;
     public static EditText distanceField;
+    public static ToggleButton button_;
+    public static Button start;
 
     private static final LatLng MAYNARD_HOUSE = new LatLng(51.525095, -0.039004);
     //private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
     private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
     private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startService(new Intent(this, IOIO_OTG.class));
+
         setContentView(R.layout.activity_maps);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -61,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Build geofences that will be used (tour stops)
         populateGeofences();
+
 
     }
 
@@ -94,11 +109,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT, 17)); //Moves map according to the update with an animation
 
         distanceField = (EditText) findViewById(R.id.distanceField);
+        button_ = (ToggleButton) findViewById(R.id.button);
+        start = (Button) findViewById(R.id.start);
 
-        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         LocationListener mlocListener = new MyLocationListener();
 
         //Register the listener with Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
 
     }
@@ -174,6 +194,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mRoute.add(new LatLng(51.525221, -0.039164)); //60m
         mRoute.add(new LatLng(51.525295, -0.039247)); //70m
     }
+
 }
 
 
