@@ -26,6 +26,8 @@ public class MyLocationListener implements LocationListener {
     @Override
     public void onLocationChanged(Location loc) {
 
+        float acc = loc.getAccuracy();
+
         loc.getLatitude();
         loc.getLongitude();
 
@@ -48,7 +50,10 @@ public class MyLocationListener implements LocationListener {
         Log.d("Bearing", degree + " degrees");
         Log.d("Current loc", Text);
         Log.d("Distance", distance + " metres");
-        MapsActivity.distanceField.setText("Distance: " + distance + " metres");
+        Log.d("Accuracy", "" + acc);
+
+        MapsActivity.distanceField.setText
+                ("Distance: " + distance + " metres.....Accuracy: " + acc + " metres");
 
         if ((Math.round(distance) %10) == 0){
             

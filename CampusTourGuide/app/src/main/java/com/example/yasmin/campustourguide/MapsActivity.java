@@ -34,12 +34,6 @@ import java.lang.Object;
 
 import java.util.ArrayList;
 
-import ioio.lib.api.DigitalOutput;
-import ioio.lib.api.IOIO;
-import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.BaseIOIOLooper;
-import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.android.IOIOActivity;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -63,7 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(this, IOIO_OTG.class));
+        //startService(new Intent(this, IOIO_OTG.class));
 
         setContentView(R.layout.activity_maps);
 
@@ -75,6 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Build geofences that will be used (tour stops)
         populateGeofences();
+        test();
 
 
     }
@@ -193,6 +188,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mRoute.add(new LatLng(51.525149, -0.039074)); //50m
         mRoute.add(new LatLng(51.525221, -0.039164)); //60m
         mRoute.add(new LatLng(51.525295, -0.039247)); //70m
+    }
+
+    public void test() {
+
+        Location loc1 = new Location("Loc1");
+        Location loc2 = new Location("Loc2");
+        Location loc3 = new Location("Loc3");
+
+        Location loc4 = new Location("Loc4");
+        Location loc5 = new Location("Loc5");
+
+        loc1.setLatitude(51.524855);
+        loc1.setLongitude(-0.038531);
+
+        loc2.setLatitude(51.524905);
+        loc2.setLongitude(-0.038653);
+
+        loc3.setLatitude(51.524957);
+        loc3.setLongitude(-0.038774);
+
+        loc4.setLatitude(51.525850);
+        loc4.setLongitude(-0.039620);
+
+        loc5.setLatitude(51.526060);
+        loc5.setLatitude(-0.039700);
+
+
+        Log.d("Bea 1", "" + loc1.bearingTo(loc2));
+        Log.d("Distance", "" + loc1.distanceTo(loc2));
+        Log.d("Bea 1 inv", "" + loc2.bearingTo(loc1));
+        Log.d("Bea 2", "" + loc2.bearingTo(loc3));
+        Log.d("Bea 3", "" + loc4.bearingTo(loc5));
+
     }
 
 }
