@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -70,8 +71,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Build geofences that will be used (tour stops)
         populateGeofences();
         test();
-
-
     }
 
     @Override
@@ -101,31 +100,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .position(SANTANDER).title("Santander Bank"));
 
         addRoute();
+
         campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT, 17)); //Moves map according to the update with an animation
 
         distanceField = (EditText) findViewById(R.id.distanceField);
         button_ = (ToggleButton) findViewById(R.id.button);
         start = (Button) findViewById(R.id.start);
 
-        LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        LocationListener mlocListener = new MyLocationListener();
+        start.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View arg0) {
+                Button start = (Button) arg0;
 
-        //Register the listener with Location Manager to receive location updates
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
-
+                Log.d("Button pressed", "Has been pressed");
+                distanceField.setText("Start travelling straight");
+                LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                LocationListener mlocListener = new MyLocationListener();
+                /*
+                //Register the listener with Location Manager to receive location updates
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }*/
+                mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+            }
+        });
     }
 
     private void addRoute(){
-
+/*
         campusMap.addPolyline((new PolylineOptions())
                 .add(MAYNARD_HOUSE, new LatLng(51.525384, -0.039367),
                         VILLAGE_BEAUMONT, SANTANDER)
                 .width(15)
                 .color(Color.BLUE)
-                .geodesic(true));
+                .geodesic(true));*/
 
         Location loc = new Location("Src");
         loc.setLongitude(51.557912);
@@ -138,7 +145,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float degree = loc.bearingTo(dest);
         Log.d("Bearing w/l", degree + " degrees");
 
+        ArrayList<LatLng> mRoute = new ArrayList <LatLng>();
+
+        mRoute.add(new LatLng(51.524855, -0.038531)); //Starting Point
+        mRoute.add(new LatLng(51.524905, -0.038653)); //10m
+        mRoute.add(new LatLng(51.524957, -0.038774)); //20m
+        mRoute.add(new LatLng(51.525015, -0.038886)); //30m
+        mRoute.add(new LatLng(51.525081, -0.038986)); //40m
+        mRoute.add(new LatLng(51.525149, -0.039074)); //50m
+        mRoute.add(new LatLng(51.525221, -0.039164)); //60m
+        mRoute.add(new LatLng(51.525295, -0.039247)); //70m
+
+        campusMap.addPolyline((new PolylineOptions())
+                .add(mRoute.get(0), mRoute.get(1), mRoute.get(2), mRoute.get(3),
+                        mRoute.get(4), mRoute.get(5), mRoute.get(6), mRoute.get(7),
+                        VILLAGE_BEAUMONT, SANTANDER)
+                .width(15)
+                .color(Color.BLUE)
+                .geodesic(true));
+
     }
+
+
     /**This method contains geofence data, all of the tour stops**/
 
     public void populateGeofences() {
@@ -177,18 +205,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void route() {
-        ArrayList<LatLng> mRoute = new ArrayList <LatLng>();
-
-        mRoute.add(new LatLng(51.524855, -0.038531)); //Starting Point
-        mRoute.add(new LatLng(51.524905, -0.038653)); //10m
-        mRoute.add(new LatLng(51.524957, -0.038774)); //20m
-        mRoute.add(new LatLng(51.525015, -0.038886)); //30m
-        mRoute.add(new LatLng(51.525081, -0.038986)); //40m
-        mRoute.add(new LatLng(51.525149, -0.039074)); //50m
-        mRoute.add(new LatLng(51.525221, -0.039164)); //60m
-        mRoute.add(new LatLng(51.525295, -0.039247)); //70m
-    }
 
     public void test() {
 

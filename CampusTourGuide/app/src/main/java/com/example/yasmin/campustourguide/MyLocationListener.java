@@ -52,23 +52,29 @@ public class MyLocationListener implements LocationListener {
         Log.d("Distance", distance + " metres");
         Log.d("Accuracy", "" + acc);
 
-        MapsActivity.distanceField.setText
-                ("Distance: " + distance + " metres.....Accuracy: " + acc + " metres");
+        int[] angle = {0,2,5,8,5,4,0,0};
 
-        if ((Math.round(distance) %10) == 0){
+        //MapsActivity.distanceField.setText
+                //("Distance: " + distance + " metres.....Accuracy: " + acc + " metres");
+
+
+        double nearest_10 = 10*(Math.floor(distance/10));
+        Log.d("Rounded", "" + nearest_10);
+
+        if (((nearest_10 % 10) == 0) && (nearest_10 <= 70)){
+
+            String text = "From : " + nearest_10 + "m travel at " + angle[(int)nearest_10/10] + " degrees ..... Actual Distance: " + distance;
+            MapsActivity.distanceField.setText(text);
             
         }
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-    }
+    public void onProviderDisabled(String provider) {}
 
     @Override
-    public void onProviderEnabled(String provider) {
-    }
+    public void onProviderEnabled(String provider) {}
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 }

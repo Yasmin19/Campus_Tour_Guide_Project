@@ -8,14 +8,15 @@
     tools:context="com.example.yasmin.campustourguide.MapsActivity" >
 
     <Button
-    android:id="@+id/start"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|bottom"
-    android:text="Start"
-    android:padding="10dp"
-    android:layout_marginTop="20dp"
-    android:paddingRight="10dp"/>
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="Start"
+        android:padding="15dp"
+        android:layout_marginTop="20dp"
+        android:paddingRight="10dp"
+        android:textSize="30sp"/>
 
     <EditText
         android:id="@+id/distanceField"
