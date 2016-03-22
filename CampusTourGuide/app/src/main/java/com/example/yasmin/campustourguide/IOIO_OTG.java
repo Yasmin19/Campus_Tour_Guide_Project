@@ -3,12 +3,18 @@ package com.example.yasmin.campustourguide;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
+import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+import ioio.lib.util.android.IOIOService;
+
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -21,118 +27,60 @@ import android.widget.ToggleButton;
  * HelloIOIOPower example.
  */
 
-public class IOIO_OTG extends IOIOActivity {
+public class IOIO_OTG extends IOIOService {
 
-	private ToggleButton button_;
+	private PwmOutput Right_Forward;
+	private PwmOutput Right_Back;
+	private PwmOutput Left_Forward;
+	private PwmOutput Left_Back;
+	private int angle;
+	private float right;
+	private float left;
+	int delay;
 
-	class Looper extends BaseIOIOLooper {
-		/** The on-board LED. */
-		private DigitalOutput led_;
+	@Override
+	protected IOIOLooper createIOIOLooper() {
+		return new BaseIOIOLooper() {
+			private DigitalOutput led_;
 
-		/**
-		 * Called every time a connection with IOIO has been established.
-		 * Typically used to open pins.
-		 *
-		 * @throws ConnectionLostException
-		 *             When IOIO connection is lost.
-		 *
-		 * @see ioio.lib.util.IOIOLooper-setup()
-		 */
-		@Override
-		protected void setup() throws ConnectionLostException {
-			showVersions(ioio_, "IOIO connected!");
-			led_ = ioio_.openDigitalOutput(0, true);
-			enableUi(true);
-		}
+			@Override
+			protected void setup() throws ConnectionLostException, InterruptedException {
+				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
 
-		/**
-		 * Called repetitively while the IOIO is connected.
-		 *
-		 * @throws ConnectionLostException
-		 *             When IOIO connection is lost.
-		 * @throws InterruptedException
-		 * 				When the IOIO thread has been interrupted.
-		 *
-		 * @see ioio.lib.util.IOIOLooper#loop()
-		 */
-		@Override
-		public void loop() throws ConnectionLostException, InterruptedException {
-			led_.write(!button_.isChecked());
-			Thread.sleep(100);
-		}
+				Right_Forward = ioio_.openPwmOutput(12, 100);
+				Right_Back = ioio_.openPwmOutput(13, 100);
+				Left_Forward = ioio_.openPwmOutput(14, 100);
+				Left_Back = ioio_.openPwmOutput(11, 100);
 
-		/**
-		 * Called when the IOIO is disconnected.
-		 *
-		 * @see ioio.lib.util.IOIOLooper#disconnected()
-		 */
-		@Override
-		public void disconnected() {
-			enableUi(false);
-			toast("IOIO disconnected");
-		}
+				switch(angle){
+					case 0:
+						right = 0.57f;
+						left = 0.55f;
+						delay = 0;
+						break;
+					case 90:
+						right = 1f;
+						left = 1f;
+						delay = 0;
 
-		/**
-		 * Called when the IOIO is connected, but has an incompatible firmware version.
-		 *
-		 * @see ioio.lib.util.IOIOLooper#incompatible(IOIO)
-		 */
-		@Override
-		public void incompatible() {
-			showVersions(ioio_, "Incompatible firmware version!");
-		}
+					case 270:
+						right = 1f;
+						left = 1f;
+						delay = 825;
+				}
+
+			}
+
+			@Override
+			public void loop() throws ConnectionLostException, InterruptedException {
+
+				led_.write(true);
+				Thread.sleep(500);
+			}
+		};
 	}
 
-		/**
-		 * A method to create our IOIO thread.
-		 *
-		 * @see ioio.lib.util.AbstractIOIOActivity#createIOIOThread()
-		 */
-		@Override
-		protected IOIOLooper createIOIOLooper() {
-			return new Looper();
-		}
-
-		private void showVersions(IOIO ioio, String title) {
-			toast(String.format("%s\n" +
-							"IOIOLib: %s\n" +
-							"Application firmware: %s\n" +
-							"Bootloader firmware: %s\n" +
-							"Hardware: %s",
-					title,
-					ioio.getImplVersion(VersionType.IOIOLIB_VER),
-					ioio.getImplVersion(VersionType.APP_FIRMWARE_VER),
-					ioio.getImplVersion(VersionType.BOOTLOADER_VER),
-					ioio.getImplVersion(VersionType.HARDWARE_VER)));
-		}
-
-		private void toast(final String message) {
-			final Context context = this;
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-				}
-			});
-		}
-
-	private int numConnected_ = 0;
-
-		private void enableUi(final boolean enable) {
-			// This is slightly trickier than expected to support a multi-IOIO use-case.
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					if (enable) {
-						if (numConnected_++ == 0) {
-							button_.setEnabled(true);
-						}
-					} else {
-						if (--numConnected_ == 0) {
-							button_.setEnabled(false);
-						}
-					}
-				}
-			});
-		}
+	public IBinder onBind(Intent arg0){
+		return null;
+	}
 }

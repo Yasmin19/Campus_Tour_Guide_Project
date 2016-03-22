@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class GeofenceTransitionsIntentService extends IntentService {
 
-    protected static final String TAG = "GeofenceTransitionsIS";
+    protected static final String TAG = "GeofenceIntentIS";
 
     /**
      * This constructor is required, and calls the super IntentService(String)
@@ -42,9 +42,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
     /**Handles incoming intents**/
-    /**
-     * Definition of Intent: Message passed between components
-     **/
     @Override
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
@@ -61,9 +58,9 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
                     title = "Geofence Entered";
                     break;
-                case Geofence.GEOFENCE_TRANSITION_EXIT:
-                    title = "Geofence Exited";
-                    break;
+                //case Geofence.GEOFENCE_TRANSITION_EXIT:
+                //    title = "Geofence Exited";
+                //    break;
                 default:
                     title = "Unknown";
             }
@@ -72,6 +69,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
     private void sendNotification(Context context, String notificationText, String notificationTitle) {
+
+        Log.d("Geofence", "Geofence detected!");
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.queenmary)
@@ -84,6 +83,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 getSystemService(NOTIFICATION_SERVICE);
         //Builds notification and issues it
         notificationManager.notify(0,notificationBuilder.build());
+
+        getRouting(notificationText);
 
     }
 
@@ -99,6 +100,26 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
 
         return TextUtils.join(", ", geofenceIds); //return id's of geofence(s) seperated by commas
+    }
+
+    private void getRouting(String tourStop){
+
+        int angle = 0;
+
+        switch(tourStop){
+            case "Turning Point":
+                angle = 90;
+                break;
+            case "Santander Bank":
+                angle = 270;
+                break;
+
+            //End previous threads and start new IOIO thread
+            //Send over degrees, in IOIO_OTG figure out amount of movement needed
+
+
+        }
+
     }
 
 }

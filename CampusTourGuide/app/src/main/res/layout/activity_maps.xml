@@ -23,6 +23,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
+        android:gravity="bottom|left"
         android:editable="false"/>
 
     <ToggleButton

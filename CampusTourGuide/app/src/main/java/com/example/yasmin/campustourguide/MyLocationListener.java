@@ -35,17 +35,17 @@ public class MyLocationListener implements LocationListener {
         dest.setLatitude(51.525095);
         dest.setLongitude(-0.039004);
 
-        Location home = new Location("home");
-        home.setLatitude(51.557929);
-        home.setLongitude(0.002362);
+        Location srt = new Location("Start");
+        srt.setLatitude(51.524855);
+        srt.setLongitude(-0.038531);
 
         String Text = "My current location is: " +
                 "Latitude = " + loc.getLatitude() +
                 "Longitude = " + loc.getLongitude();
 
         float currBearing = loc.getBearing();
-        float degree = loc.bearingTo(dest);
-        float distance = loc.distanceTo(home);
+        float degree = loc.bearingTo(srt);
+        float distance = loc.distanceTo(srt);
 
         Log.d("Bearing", degree + " degrees");
         Log.d("Current loc", Text);
