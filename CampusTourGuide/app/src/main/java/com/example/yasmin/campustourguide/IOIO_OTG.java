@@ -33,6 +33,8 @@ public class IOIO_OTG extends IOIOService {
 	private PwmOutput Right_Back;
 	private PwmOutput Left_Forward;
 	private PwmOutput Left_Back;
+	private DigitalOutput led_;
+
 	private int angle;
 	private float right;
 	private float left;
@@ -41,7 +43,7 @@ public class IOIO_OTG extends IOIOService {
 	@Override
 	protected IOIOLooper createIOIOLooper() {
 		return new BaseIOIOLooper() {
-			private DigitalOutput led_;
+
 
 			@Override
 			protected void setup() throws ConnectionLostException, InterruptedException {
@@ -51,7 +53,7 @@ public class IOIO_OTG extends IOIOService {
 				Right_Back = ioio_.openPwmOutput(13, 100);
 				Left_Forward = ioio_.openPwmOutput(14, 100);
 				Left_Back = ioio_.openPwmOutput(11, 100);
-
+//1+3/4 1 wheel moving for 90 degree turn
 				switch(angle){
 					case 0:
 						right = 0.57f;
@@ -59,8 +61,8 @@ public class IOIO_OTG extends IOIOService {
 						delay = 0;
 						break;
 					case 90:
-						right = 1f;
-						left = 1f;
+						right = 58/255f;
+						left = 58/255f;
 						delay = 0;
 
 					case 270:
@@ -74,13 +76,49 @@ public class IOIO_OTG extends IOIOService {
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
 
+				led_.write(false);
+				Thread.sleep(500);
 				led_.write(true);
 				Thread.sleep(500);
 			}
 		};
 	}
 
-	public IBinder onBind(Intent arg0){
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		createIOIOLooper();
+		int result = super.onStartCommand(intent, flags, startId);
+
+        /*
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (intent != null && intent.getAction() != null
+                && intent.getAction().equals("stop")) {
+            // User clicked the notification. Need to stop the service.
+            nm.cancel(0);
+            stopSelf();
+        } else {
+            // Service starting. Create a notification.
+            Notification notification = new Notification(
+                    R.drawable.queenmary, "IOIO service running",
+                    System.currentTimeMillis());
+            notification
+                    .setLatestEventInfo(this, "IOIO Service", "Click to stop",
+                            PendingIntent.getService(this, 0, new Intent(
+                                    "stop", null, this, this.getClass()), 0));
+            notification.flags |= Notification.FLAG_ONGOING_EVENT;
+            nm.notify(0, notification);
+        }*/
+		return result;
+	}
+
+
+	protected void onStop() {
+		//mGeofenceStore.disconnect();
+		led_.close();
+	}
+
+	@Override
+	public IBinder onBind(Intent arg0) {
 		return null;
 	}
 }

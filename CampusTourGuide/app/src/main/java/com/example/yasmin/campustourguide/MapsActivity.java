@@ -15,6 +15,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -41,11 +42,14 @@ import java.lang.Object;
 
 import java.util.ArrayList;
 
+import ioio.lib.util.android.IOIOActivity;
+import ioio.lib.util.android.IOIOService;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener{
 
     private GoogleMap campusMap; //Google Map Object
+    private Context mContext;
     private GoogleApiClient mGoogleApiClient;
     protected static final String TAG = "MainActivity";
     ArrayList<Geofence> mGeofenceList; //List of geofences used
@@ -70,7 +74,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+        mContext=this;
         //startService(new Intent(this, IOIO_OTG.class));
        // startService(new Intent(this, MyOrientationListener.class));
 
@@ -129,6 +133,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         start.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View arg0) {
                 Button start = (Button) arg0;
+
+                startService(new Intent(mContext, IOIO_OTG.class));
 
                 Log.d("Button pressed", "Has been pressed");
                 distanceField.setText("Start travelling straight");
@@ -268,6 +274,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Log.v("Orientation", Float.toString(event.values[0]));
     }
+
 }
 
 

@@ -32,6 +32,7 @@
             android:value="@string/google_maps_key" />
 
         <service android:name= ".GeofenceTransitionsIntentService" />
+        <service android:name= ".IOIO_OTG" />
 
         <activity
             android:name=".MapsActivity"
