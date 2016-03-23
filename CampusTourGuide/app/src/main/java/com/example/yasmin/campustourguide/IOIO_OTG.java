@@ -88,14 +88,27 @@ public class IOIO_OTG extends IOIOService {
 				}*/
 
 			}
+			double thing=0.00087266;
 
+
+			public int mtodeg(double m)
+			{
+				m= m+m*0.25;
+				return (int)(m/thing);
+			}
+
+			int flag=0;
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
 
 				//if (MapsActivity.esc) {
-				codeCheck(1, 358);//right wheel needs 2 less drg than left
-				Thread.sleep(3000);
-				//}
+				if(flag==0)
+				{
+					//codeCheck(1, mtodeg(10));//right wheel needs 2 less drg than left
+					//Thread.sleep(3000);
+					codeCheck(1, mtodeg(3));
+					flag++;
+				}
 			}
 			int deg1;
 			int deg2;
