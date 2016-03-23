@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.net.URISyntaxException;
+
 /**
  * This is the main activity of the HelloIOIO example application.
  *
@@ -41,19 +43,23 @@ public class IOIO_OTG extends IOIOService {
 	int delay;
 
 	@Override
-	protected IOIOLooper createIOIOLooper() {
-		return new BaseIOIOLooper() {
+	protected IOIOLooper createIOIOLooper()  {
+		return new BaseIOIOLooper()  {
 
 
 			@Override
-			protected void setup() throws ConnectionLostException, InterruptedException {
+			protected void setup() throws ConnectionLostException, InterruptedException{
 				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
 
-				Right_Forward = ioio_.openPwmOutput(12, 100);
-				Right_Back = ioio_.openPwmOutput(13, 100);
-				Left_Forward = ioio_.openPwmOutput(14, 100);
-				Left_Back = ioio_.openPwmOutput(11, 100);
+				//Toast.makeText(getApplicationContext(), MapsActivity.msg, Toast.LENGTH_SHORT).show();
+				Right_Forward = ioio_.openPwmOutput(34, 100);
+				Right_Back = ioio_.openPwmOutput(35, 100);
+				Left_Forward = ioio_.openPwmOutput(36, 100);
+				Left_Back = ioio_.openPwmOutput(37, 100);
+				Right_Forward.setDutyCycle(0.52f);
+				Left_Forward.setDutyCycle(0.5f);
 //1+3/4 1 wheel moving for 90 degree turn
+				/*
 				switch(angle){
 					case 0:
 						right = 0.57f;
@@ -69,17 +75,17 @@ public class IOIO_OTG extends IOIOService {
 						right = 1f;
 						left = 1f;
 						delay = 825;
-				}
+				}*/
 
 			}
 
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
 
-				led_.write(false);
-				Thread.sleep(500);
-				led_.write(true);
-				Thread.sleep(500);
+				if (MapsActivity.esc) {
+					Right_Forward.setDutyCycle(0.52f);
+					Left_Forward.setDutyCycle(0.5f);
+				}
 			}
 		};
 	}

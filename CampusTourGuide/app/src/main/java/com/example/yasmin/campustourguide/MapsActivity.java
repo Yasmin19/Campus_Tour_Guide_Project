@@ -59,6 +59,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static EditText distanceField;
     //public static ToggleButton button_;
     public static Button start;
+    public static String msg = "hello";
+    public static boolean esc = false;
 
     private SensorManager mSensorManager;
     private Sensor accelerometer;
@@ -134,7 +136,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View arg0) {
                 Button start = (Button) arg0;
 
-                startService(new Intent(mContext, IOIO_OTG.class));
+                Intent intent = new Intent(mContext, IOIO_OTG.class);
+                //intent.putExtra("pwm", "hello");
+                startService(intent);
 
                 Log.d("Button pressed", "Has been pressed");
                 distanceField.setText("Start travelling straight");
@@ -145,7 +149,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }*/
-                mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+                //mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
             }
         });
     }
@@ -213,18 +217,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //mGeofenceNames.add("Varey House/The Curve");
         mGeofenceNames.add("Village Shop/Beaumont Court");
         mGeofenceNames.add("Santander Bank");
-        mGeofenceNames.add("Home");
-        mGeofenceNames.add("France House");
+        //mGeofenceNames.add("Home");
+        //mGeofenceNames.add("France House");
         mGeofenceNames.add("Turning Point");
+        mGeofenceNames.add("Canalside");
 
 
         mGeofenceCoordinates.add(MAYNARD_HOUSE);
         //mGeofenceCoordinates.add(VAREY_CURVE);
         mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
         mGeofenceCoordinates.add(SANTANDER);
-        mGeofenceCoordinates.add(new LatLng(51.557935, 0.002382));
-        mGeofenceCoordinates.add(new LatLng(51.526590, -0.039799));
+        //mGeofenceCoordinates.add(new LatLng(51.557935, 0.002382));
+        //mGeofenceCoordinates.add(new LatLng(51.526590, -0.039799));
         mGeofenceCoordinates.add(new LatLng(51.526569, -0.039912));
+        mGeofenceCoordinates.add(new LatLng(51.526185, -0.039564));
 
 
         for(int i=0; i<mGeofenceNames.size(); i++) {
@@ -233,7 +239,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // geofence.
                     .setRequestId(mGeofenceNames.get(i))
                             //(latitude, longitude, radius_in_meters)
-                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 20)
+                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 25)
                             //expiration in milliseconds
                     .setExpirationDuration(300000000)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |

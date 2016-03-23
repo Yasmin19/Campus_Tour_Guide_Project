@@ -14,6 +14,7 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -71,6 +72,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     private void sendNotification(Context context, String notificationText, String notificationTitle) {
 
         Log.d("Geofence", "Geofence detected!");
+        getRouting(notificationText);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.queenmary)
@@ -84,7 +86,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         //Builds notification and issues it
         notificationManager.notify(0,notificationBuilder.build());
 
-        getRouting(notificationText);
+
 
     }
 
@@ -108,7 +110,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         switch(tourStop){
             case "Turning Point":
-                angle = 90;
+                //angle = 90;
+                MapsActivity.esc = true;
                 break;
             case "Santander Bank":
                 angle = 270;
