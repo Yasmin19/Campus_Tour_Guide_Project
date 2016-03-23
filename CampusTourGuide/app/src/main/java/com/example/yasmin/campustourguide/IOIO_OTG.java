@@ -1,5 +1,6 @@
 package com.example.yasmin.campustourguide;
 
+import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
@@ -31,15 +32,16 @@ import java.net.URISyntaxException;
 
 public class IOIO_OTG extends IOIOService {
 
-	private PwmOutput Right_Forward;
-	private PwmOutput Right_Back;
-	private PwmOutput Left_Forward;
-	private PwmOutput Left_Back;
 	private DigitalOutput led_;
-
+	private  PwmOutput Forward[] = new PwmOutput[2];
+	private  PwmOutput Backward[] = new PwmOutput[2];
+	private  DigitalInput Encoder[] = new DigitalInput[4];
 	private int angle;
 	private float right;
 	private float left;
+	private boolean A[]=new boolean[2];//tracks
+	private boolean B[]=new boolean[2];
+	private boolean temp1, temp2,temp3,temp4;
 	int delay;
 
 	@Override
@@ -52,12 +54,20 @@ public class IOIO_OTG extends IOIOService {
 				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
 
 				//Toast.makeText(getApplicationContext(), MapsActivity.msg, Toast.LENGTH_SHORT).show();
-				Right_Forward = ioio_.openPwmOutput(34, 100);
+				/*Right_Forward = ioio_.openPwmOutput(34, 100);
 				Right_Back = ioio_.openPwmOutput(35, 100);
 				Left_Forward = ioio_.openPwmOutput(36, 100);
-				Left_Back = ioio_.openPwmOutput(37, 100);
-				Right_Forward.setDutyCycle(0.52f);
-				Left_Forward.setDutyCycle(0.5f);
+				Left_Back = ioio_.openPwmOutput(37, 100);*/
+				Forward[0] = ioio_.openPwmOutput(36, 100);
+				Forward[1] = ioio_.openPwmOutput(34, 100);
+				Backward[0] = ioio_.openPwmOutput(37, 100);
+				Backward[1] = ioio_.openPwmOutput(35, 100);
+				int base = 10;
+				for (int i = 0; i < 4; i++) {
+					Encoder[i] = ioio_.openDigitalInput(10 + i, DigitalInput.Spec.Mode.PULL_DOWN);
+				}
+				//Right_Forward.setDutyCycle(0.52f);
+				//Left_Forward.setDutyCycle(0.5f);
 //1+3/4 1 wheel moving for 90 degree turn
 				/*
 				switch(angle){
@@ -82,10 +92,42 @@ public class IOIO_OTG extends IOIOService {
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
 
-				if (MapsActivity.esc) {
-					Right_Forward.setDutyCycle(0.52f);
-					Left_Forward.setDutyCycle(0.5f);
+				//if (MapsActivity.esc) {
+				codeCheck(1, 358);//right wheel needs 2 less drg than left
+				Thread.sleep(3000);
+				//}
+			}
+			int deg1;
+			int deg2;
+			public void codeCheck(int side, int deg) throws ConnectionLostException, InterruptedException {
+				int deg1=deg-2;
+				A[0] = Encoder[0].read();
+				B[0] = Encoder[1].read();
+				A[1] = Encoder[2].read();
+				B[1] = Encoder[3].read();
+				Forward[0].setDutyCycle(0.5f);
+				Forward[1].setDutyCycle(0.52f);
+				while (deg != 0 || deg1!=0) {
+					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read()))&&deg!=0) {
+						deg--;
+						A[0] = temp1;
+						B[0] = temp2;
+					}
+					if(deg==0)
+					{
+						Forward[0].setDutyCycle(0);
+					}
+					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read()))&&deg1!=0) {
+						deg1--;
+						A[1] = temp1;
+						B[1] = temp2;
+					}
+					if(deg1==0)
+					{
+						Forward[1].setDutyCycle(0);
+					}
 				}
+				//Forward[side].setDutyCycle(0);
 			}
 		};
 	}
