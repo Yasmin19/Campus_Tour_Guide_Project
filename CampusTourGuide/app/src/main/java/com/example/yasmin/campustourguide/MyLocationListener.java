@@ -22,6 +22,7 @@ import java.io.InputStream;
  */
 public class MyLocationListener implements LocationListener {
     private Context mContext;
+    private boolean flag = false;
 
     @Override
     public void onLocationChanged(Location loc) {
@@ -31,28 +32,25 @@ public class MyLocationListener implements LocationListener {
         loc.getLatitude();
         loc.getLongitude();
 
+        //Santander Bank
         Location dest = new Location("Dest");
-        dest.setLatitude(51.525095);
-        dest.setLongitude(-0.039004);
-
-        Location srt = new Location("Start");
-        srt.setLatitude(51.524855);
-        srt.setLongitude(-0.038531);
+        dest.setLatitude(51.526144);
+        dest.setLongitude(-0.039733);
 
         String Text = "My current location is: " +
                 "Latitude = " + loc.getLatitude() +
                 "Longitude = " + loc.getLongitude();
 
         float currBearing = loc.getBearing();
-        float degree = loc.bearingTo(srt);
-        float distance = loc.distanceTo(srt);
-
+        //float degree = loc.bearingTo(srt);
+        float distance = loc.distanceTo(dest);
+    /*
         Log.d("Bearing", degree + " degrees");
         Log.d("Current loc", Text);
         Log.d("Distance", distance + " metres");
-        Log.d("Accuracy", "" + acc);
+        Log.d("Accuracy", "" + acc);*/
 
-        int[] angle = {0,2,5,8,5,4,0,0};
+       // int[] angle = {0,2,5,8,5,4,0,0};
 
         //MapsActivity.distanceField.setText
                 //("Distance: " + distance + " metres.....Accuracy: " + acc + " metres");
@@ -61,11 +59,20 @@ public class MyLocationListener implements LocationListener {
         double nearest_10 = 10*(Math.floor(distance/10));
         Log.d("Rounded", "" + nearest_10);
 
+        /*
         if (((nearest_10 % 10) == 0) && (nearest_10 <= 70)){
 
             String text = "From : " + nearest_10 + "m travel at " + angle[(int)nearest_10/10] + " degrees ..... Actual Distance: " + distance;
-            MapsActivity.distanceField.setText(text);
+            //MapsActivity.distanceField.setText(text);
             
+        }*/
+
+        //for testing, manually make distance a certain amount, create a delay and then change to less than 20 to test whether stops or not
+        if (!flag) {
+            if (distance >= 100) {
+                MapsActivity.esc = true;
+                flag = true;
+            }
         }
     }
 

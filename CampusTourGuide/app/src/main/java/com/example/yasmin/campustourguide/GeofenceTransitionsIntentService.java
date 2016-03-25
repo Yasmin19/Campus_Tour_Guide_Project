@@ -59,9 +59,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
                     title = "Geofence Entered";
                     break;
-                //case Geofence.GEOFENCE_TRANSITION_EXIT:
-                //    title = "Geofence Exited";
-                //    break;
                 default:
                     title = "Unknown";
             }
@@ -108,24 +105,19 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         int angle = 0;
 
-        switch(tourStop){
-            case "Turning Point":
-                //angle = 90;
-                MapsActivity.esc = true;
-                break;
-            case "Santander Bank":
-                angle = 270;
-                break;
+        if (tourStop.contains("Santander Bank")){}
+        // MapsActivity.esc = true;
 
-            //End previous threads and start new IOIO thread
-            //Send over degrees, in IOIO_OTG figure out amount of movement needed
+
+        //End previous threads and start new IOIO thread
+        //Send over degrees, in IOIO_OTG figure out amount of movement needed
 
 
         }
 
-    }
-
 }
+
+
 
 
 

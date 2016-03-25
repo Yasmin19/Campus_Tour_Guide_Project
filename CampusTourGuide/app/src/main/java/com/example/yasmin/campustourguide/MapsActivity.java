@@ -56,11 +56,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<String> mGeofenceNames; //List of geofence names
     ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
     public GeofenceStore mGeofenceStore;
-    public static EditText distanceField;
+    //public static EditText distanceField;
+    public static EditText left;
+    public static EditText right;
     //public static ToggleButton button_;
     public static Button start;
+    public static Button flagButton;
     public static String msg = "hello";
     public static boolean esc = false;
+    public static int angleLeft = 0;
+    public static int angleRight = 0;
+    public Intent intent;
 
     private SensorManager mSensorManager;
     private Sensor accelerometer;
@@ -86,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         //Build geofences that will be used (tour stops)
-        populateGeofences();
+
 
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -104,7 +110,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStop() {
         //mGeofenceStore.disconnect();
+
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
     }
 
 
@@ -127,29 +139,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT, 17)); //Moves map according to the update with an animation
 
-        distanceField = (EditText) findViewById(R.id.distanceField);
+        //distanceField = (EditText) findViewById(R.id.distanceField);
         //button_ = (ToggleButton) findViewById(R.id.button);
         start = (Button) findViewById(R.id.start);
+        flagButton = (Button) findViewById(R.id.flagButton);
+        left = (EditText) findViewById(R.id.left);
+        right = (EditText) findViewById(R.id.right);
+
+        right.setText("0");
+        left.setText("0");
 
 
         start.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View arg0) {
                 Button start = (Button) arg0;
 
-                Intent intent = new Intent(mContext, IOIO_OTG.class);
-                //intent.putExtra("pwm", "hello");
-                startService(intent);
+                angleLeft = Integer.valueOf(left.getText().toString());
+                angleRight = Integer.valueOf(right.getText().toString());
 
-                Log.d("Button pressed", "Has been pressed");
-                distanceField.setText("Start travelling straight");
-                LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                LocationListener mlocListener = new MyLocationListener();
+                Log.v("Angle", "" + angleLeft);
+                Log.v("Angle", "" + angleRight);
+
+
+
+                //populateGeofences();
+
+                //distanceField.setText("Start travelling straight");
+
                 /*
                 //Register the listener with Location Manager to receive location updates
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }*/
-                //mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
+                intent = new Intent(mContext, IOIO_OTG.class);
+                //intent.putExtra("pwm", "hello");
+                startService(intent);
+
+
+                LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                LocationListener mlocListener = new MyLocationListener();
+                mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
             }
         });
     }
@@ -239,11 +269,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // geofence.
                     .setRequestId(mGeofenceNames.get(i))
                             //(latitude, longitude, radius_in_meters)
-                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 25)
+                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 20)
                             //expiration in milliseconds
                     .setExpirationDuration(300000000)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                     .build());
         }
         //Add geofences to GeofenceStore obect
@@ -279,6 +308,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Do something with these orientation angles.
 
         Log.v("Orientation", Float.toString(event.values[0]));
+       // try
+       // {
+           // Thread.sleep(100);
+       // }
+        //catch(InterruptedException e){}
     }
 
 }

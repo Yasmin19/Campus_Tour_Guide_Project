@@ -111,7 +111,6 @@ public class GeofenceStore implements ConnectionCallbacks, OnConnectionFailedLis
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }
-        //Intent intent = new Intent("com.aol.android.geofence.ACTION_RECEIVE_GEOFENCE");
         Intent intent = new Intent(mContext, GeofenceTransitionsIntentService.class);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
         // calling addGeofences() and removeGeofences().

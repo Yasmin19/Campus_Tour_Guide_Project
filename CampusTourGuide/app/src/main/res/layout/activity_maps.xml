@@ -18,13 +18,31 @@
         android:paddingRight="10dp"
         android:textSize="30sp"/>
 
+    <Button
+        android:id="@+id/flagButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:text="Flag"
+        android:padding="15dp"
+        android:layout_marginTop="20dp"
+        android:paddingRight="10dp"
+        android:textSize="30sp"/>
+
+
     <EditText
-        android:id="@+id/distanceField"
+        android:id="@+id/left"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:gravity="bottom|left"
-        android:editable="false"/>
+        android:gravity="bottom|left"/>
+
+    <EditText
+        android:id="@+id/right"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:layout_below="@id/left"/>
 
     <ToggleButton
         android:text="ToggleButton"

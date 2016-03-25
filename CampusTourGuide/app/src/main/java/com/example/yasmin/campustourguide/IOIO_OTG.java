@@ -13,13 +13,21 @@ import ioio.lib.util.android.IOIOService;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 /**
  * This is the main activity of the HelloIOIO example application.
@@ -32,6 +40,16 @@ import java.net.URISyntaxException;
 
 public class IOIO_OTG extends IOIOService {
 
+	ArrayList<Geofence> mGeofenceList; //List of geofences used
+	ArrayList<String> mGeofenceNames; //List of geofence names
+	ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
+	public GeofenceStore mGeofenceStore;
+	private static final LatLng MAYNARD_HOUSE = new LatLng(51.525095, -0.039004);
+	//private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
+	private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
+	private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
+
+	private Context mContext=this;
 	private DigitalOutput led_;
 	private  PwmOutput Forward[] = new PwmOutput[2];
 	private  PwmOutput Backward[] = new PwmOutput[2];
@@ -66,6 +84,7 @@ public class IOIO_OTG extends IOIOService {
 				for (int i = 0; i < 4; i++) {
 					Encoder[i] = ioio_.openDigitalInput(10 + i, DigitalInput.Spec.Mode.PULL_DOWN);
 				}
+				//populateGeofences();
 				//Right_Forward.setDutyCycle(0.52f);
 				//Left_Forward.setDutyCycle(0.5f);
 //1+3/4 1 wheel moving for 90 degree turn
@@ -93,34 +112,57 @@ public class IOIO_OTG extends IOIOService {
 
 			public int mtodeg(double m)
 			{
-				m= m+m*0.25;
+				m= m+m*0.30;
 				return (int)(m/thing);
 			}
 
 			int flag=0;
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
-
+				MapsActivity.flagButton.setOnClickListener(new Button.OnClickListener() {
+					public void onClick(View arg0) {
+						Button thing = (Button) arg0;
+						try {
+							//codeCheck(mtodeg(3));
+							//codeCheckturnLeft(MapsActivity.angleLeft, MapsActivity.angleRight);//Right 393  Left 394
+							//codeCheckturnRight(393, 394);//right 394  left 393
+							codeCheck(mtodeg(50));
+							/*
+							if(MapsActivity.esc)
+							{
+								MapsActivity.esc=false;
+								codeCheckturnRight(393, 394);
+							}*/
+							//codeCheck(1, mtodeg(3));
+						} catch (ConnectionLostException e) {
+						} catch (InterruptedException b) {
+						}
+					}
+				});
 				//if (MapsActivity.esc) {
-				if(flag==0)
-				{
-					//codeCheck(1, mtodeg(10));//right wheel needs 2 less drg than left
-					//Thread.sleep(3000);
-					codeCheck(1, mtodeg(3));
-					flag++;
-				}
 			}
-			int deg1;
-			int deg2;
-			public void codeCheck(int side, int deg) throws ConnectionLostException, InterruptedException {
+
+			//codeCheck(1, mtodeg(10));//right wheel needs 2 less drg than left
+			//Thread.sleep(3000);
+
+
+			public void codeCheck(int deg) throws ConnectionLostException, InterruptedException {
 				int deg1=deg-2;
+				float stuff=0.005f;
+				int trigg=0;
+				int adapt1=10;
+				int adapt2=10;
+				float speedLorig=0.5f;
+				float speedRorig=0.52f;
+				float speedL=0.5f;
+				float speedR=0.525f;
 				A[0] = Encoder[0].read();
 				B[0] = Encoder[1].read();
 				A[1] = Encoder[2].read();
 				B[1] = Encoder[3].read();
 				Forward[0].setDutyCycle(0.5f);
 				Forward[1].setDutyCycle(0.52f);
-				while (deg != 0 || deg1!=0) {
+				while ((deg != 0 || deg1!=0)&& !MapsActivity.esc) {
 					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read()))&&deg!=0) {
 						deg--;
 						A[0] = temp1;
@@ -139,15 +181,187 @@ public class IOIO_OTG extends IOIOService {
 					{
 						Forward[1].setDutyCycle(0);
 					}
+					if(deg1+adapt1<deg)
+					{
+						if (trigg!=1 && speedLorig<speedL+0.1) {
+							speedL += stuff;
+							Forward[0].setDutyCycle(speedL);
+							trigg = 1;
+						}
+					}
+					else if(deg1+adapt1+10<deg)
+					{
+						if (trigg!=2 && speedLorig<speedL+0.1) {
+							speedL += stuff;
+							Forward[0].setDutyCycle(speedL);
+							trigg = 2;
+						}
+					}
+					else if(trigg==1 || trigg==2)
+					{
+						speedL -= stuff*trigg;
+						Forward[0].setDutyCycle(speedL);
+						trigg=0;
+					}
+					if(deg+adapt2<deg1)
+					{
+						if(trigg!=3 && speedRorig<speedR+0.1)
+						{
+							speedR+=stuff;
+							Forward[1].setDutyCycle(speedR);
+							trigg=3;
+						}
+					}
+					else if(deg+adapt2+10<deg1)
+					{
+						if (trigg!=4 && speedRorig<speedR+0.1) {
+							speedR += stuff;
+							Forward[1].setDutyCycle(speedR);
+							trigg = 4;
+						}
+					}
+					else if(trigg==3 || trigg==4)
+					{
+						speedR-=stuff*(trigg-2);
+						Forward[1].setDutyCycle(speedR);
+						trigg=0;
+					}
+				}
+
+				if(MapsActivity.esc)
+				{
+					Forward[0].setDutyCycle(0);
+					Forward[1].setDutyCycle(0);
 				}
 				//Forward[side].setDutyCycle(0);
 			}
+
+
+			public void codeCheckturnLeft(int deg, int deg1) throws ConnectionLostException, InterruptedException {
+				//int deg1 = deg - 2;
+				A[0] = Encoder[0].read();
+				B[0] = Encoder[1].read();
+				A[1] = Encoder[2].read();
+				B[1] = Encoder[3].read();
+				Backward[0].setDutyCycle(0.5f);
+				Forward[1].setDutyCycle(0.52f);
+				while ((deg != 0 || deg1 != 0) && !MapsActivity.esc) {
+					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
+						deg--;
+						A[0] = temp1;
+						B[0] = temp2;
+					}
+					if (deg == 0) {
+						Backward[0].setDutyCycle(0);
+					}
+					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read())) && deg1 != 0) {
+						deg1--;
+						A[1] = temp1;
+						B[1] = temp2;
+					}
+					if (deg1 == 0) {
+						Forward[1].setDutyCycle(0);
+					}
+				}
+
+				if(MapsActivity.esc)
+				{
+					Backward[0].setDutyCycle(0);
+					Forward[1].setDutyCycle(0);
+				}
+				//Forward[side].setDutyCycle(0);
+			}
+
+
+			public void codeCheckturnRight(int deg, int deg1) throws ConnectionLostException, InterruptedException {
+				//int deg1 = deg - 2;
+				A[0] = Encoder[0].read();
+				B[0] = Encoder[1].read();
+				A[1] = Encoder[2].read();
+				B[1] = Encoder[3].read();
+				Forward[0].setDutyCycle(0.5f);
+				Backward[1].setDutyCycle(0.52f);
+				while ((deg != 0 || deg1 != 0) && !MapsActivity.esc) {
+					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
+						deg--;
+						A[0] = temp1;
+						B[0] = temp2;
+					}
+					if (deg == 0) {
+						Forward[0].setDutyCycle(0);
+					}
+					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read())) && deg1 != 0) {
+						deg1--;
+						A[1] = temp1;
+						B[1] = temp2;
+					}
+					if (deg1 == 0) {
+						Backward[1].setDutyCycle(0);
+					}
+				}
+
+				if(MapsActivity.esc)
+				{
+					Backward[1].setDutyCycle(0);
+					Forward[0].setDutyCycle(0);
+				}
+				//Forward[side].setDutyCycle(0);
+			}
+			//394 right
+			//393 left for 90 degree turn
+
+
+			public void populateGeofences() {
+
+				//Empty list for storing geofences
+				mGeofenceNames = new ArrayList<String>();
+				mGeofenceCoordinates = new ArrayList <LatLng>();
+				mGeofenceList = new ArrayList<Geofence>();
+
+				mGeofenceNames.add("Maynard House");
+				//mGeofenceNames.add("Varey House/The Curve");
+				mGeofenceNames.add("Village Shop/Beaumont Court");
+				mGeofenceNames.add("Santander Bank");
+				//mGeofenceNames.add("Home");
+				//mGeofenceNames.add("France House");
+				mGeofenceNames.add("Turning Point");
+				mGeofenceNames.add("Canalside");
+
+
+				mGeofenceCoordinates.add(MAYNARD_HOUSE);
+				//mGeofenceCoordinates.add(VAREY_CURVE);
+				mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
+				mGeofenceCoordinates.add(SANTANDER);
+				//mGeofenceCoordinates.add(new LatLng(51.557935, 0.002382));
+				//mGeofenceCoordinates.add(new LatLng(51.526590, -0.039799));
+				mGeofenceCoordinates.add(new LatLng(51.526569, -0.039912));
+				mGeofenceCoordinates.add(new LatLng(51.526185, -0.039564));
+
+
+				for(int i=0; i<mGeofenceNames.size(); i++) {
+					mGeofenceList.add(new Geofence.Builder()
+							// Set the request ID of the geofence. This is a string to identify this
+							// geofence.
+							.setRequestId(mGeofenceNames.get(i))
+									//(latitude, longitude, radius_in_meters)
+							.setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 20)
+									//expiration in milliseconds
+							.setExpirationDuration(300000000)
+							.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+							.build());
+				}
+				//Add geofences to GeofenceStore obect
+				mGeofenceStore = new GeofenceStore(mContext, mGeofenceList); //Send over context and geofence list
+
+			}
 		};
+
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		createIOIOLooper();
+
 		int result = super.onStartCommand(intent, flags, startId);
 
         /*
@@ -176,6 +390,11 @@ public class IOIO_OTG extends IOIOService {
 	protected void onStop() {
 		//mGeofenceStore.disconnect();
 		led_.close();
+	}
+
+	public void onDestroy(){
+		stopSelf();
+		super.onDestroy();
 	}
 
 	@Override
