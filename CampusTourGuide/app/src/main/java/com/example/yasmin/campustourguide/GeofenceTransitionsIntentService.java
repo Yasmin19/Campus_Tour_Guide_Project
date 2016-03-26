@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 import java.util.Map;
@@ -108,12 +110,15 @@ public class GeofenceTransitionsIntentService extends IntentService {
         if (tourStop.contains("Santander Bank")){}
         // MapsActivity.esc = true;
 
-
-        //End previous threads and start new IOIO thread
-        //Send over degrees, in IOIO_OTG figure out amount of movement needed
-
-
+        if (tourStop.contains("Home")){
+            MapsActivity.esc = true;
         }
+
+        if (tourStop.contains("Test")){
+           // MapsActivity.esc = true;
+        }
+
+    }
 
 }
 

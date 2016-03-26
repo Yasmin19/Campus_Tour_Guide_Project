@@ -119,6 +119,17 @@ public class IOIO_OTG extends IOIOService {
 			int flag=0;
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
+
+				if (!MapsActivity.esc) {
+					led_.write(false);
+					Thread.sleep(500);
+					led_.write(true);
+					Thread.sleep(500);
+
+					Backward[0].setDutyCycle(0.5f);
+					Forward[1].setDutyCycle(0.52f);
+				}
+
 				MapsActivity.flagButton.setOnClickListener(new Button.OnClickListener() {
 					public void onClick(View arg0) {
 						Button thing = (Button) arg0;

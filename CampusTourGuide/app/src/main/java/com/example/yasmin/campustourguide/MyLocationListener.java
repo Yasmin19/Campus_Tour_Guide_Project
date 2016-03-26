@@ -68,12 +68,12 @@ public class MyLocationListener implements LocationListener {
         }*/
 
         //for testing, manually make distance a certain amount, create a delay and then change to less than 20 to test whether stops or not
-        if (!flag) {
+
             if (distance >= 100) {
-                MapsActivity.esc = true;
+                //MapsActivity.esc = true;
                 flag = true;
             }
-        }
+
     }
 
     @Override

@@ -34,6 +34,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -52,17 +53,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Context mContext;
     private GoogleApiClient mGoogleApiClient;
     protected static final String TAG = "MainActivity";
+
     ArrayList<Geofence> mGeofenceList; //List of geofences used
     ArrayList<String> mGeofenceNames; //List of geofence names
     ArrayList<LatLng> mGeofenceCoordinates; //List of geofence coordinates
     public GeofenceStore mGeofenceStore;
+
     //public static EditText distanceField;
     public static EditText left;
     public static EditText right;
-    //public static ToggleButton button_;
     public static Button start;
     public static Button flagButton;
-    public static String msg = "hello";
+    public static Button startGeofences;
     public static boolean esc = false;
     public static int angleLeft = 0;
     public static int angleRight = 0;
@@ -132,8 +134,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //        .position(VAREY_CURVE).title("Varey House/The Curve"));
         campusMap.addMarker(new MarkerOptions()
                 .position(VILLAGE_BEAUMONT).title("Village Shop/Beaumont Court"));
+
+
         campusMap.addMarker(new MarkerOptions()
-                .position(SANTANDER).title("Santander Bank"));
+                .position(SANTANDER).title("Santander Bank")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.santander_marker)));
 
         addRoute();
 
@@ -143,6 +148,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //button_ = (ToggleButton) findViewById(R.id.button);
         start = (Button) findViewById(R.id.start);
         flagButton = (Button) findViewById(R.id.flagButton);
+        startGeofences = (Button) findViewById(R.id.startGeofences);
         left = (EditText) findViewById(R.id.left);
         right = (EditText) findViewById(R.id.right);
 
@@ -160,11 +166,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.v("Angle", "" + angleLeft);
                 Log.v("Angle", "" + angleRight);
 
-
-
-                //populateGeofences();
-
-                //distanceField.setText("Start travelling straight");
+                //
 
                 /*
                 //Register the listener with Location Manager to receive location updates
@@ -176,10 +178,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //intent.putExtra("pwm", "hello");
                 startService(intent);
 
+                //populateGeofences();
 
-                LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                LocationListener mlocListener = new MyLocationListener();
-                mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
+               // LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+               // LocationListener mlocListener = new MyLocationListener();
+                //mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+            }
+        });
+
+        startGeofences.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View arg0) {
+                Button start = (Button) arg0;
+
+                populateGeofences();
+
             }
         });
     }
@@ -247,10 +260,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //mGeofenceNames.add("Varey House/The Curve");
         mGeofenceNames.add("Village Shop/Beaumont Court");
         mGeofenceNames.add("Santander Bank");
-        //mGeofenceNames.add("Home");
         //mGeofenceNames.add("France House");
         mGeofenceNames.add("Turning Point");
         mGeofenceNames.add("Canalside");
+        mGeofenceNames.add("Home");
+        mGeofenceNames.add("Test");
 
 
         mGeofenceCoordinates.add(MAYNARD_HOUSE);
@@ -261,6 +275,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //mGeofenceCoordinates.add(new LatLng(51.526590, -0.039799));
         mGeofenceCoordinates.add(new LatLng(51.526569, -0.039912));
         mGeofenceCoordinates.add(new LatLng(51.526185, -0.039564));
+        mGeofenceCoordinates.add(new LatLng(51.557910, 0.002358));
+        mGeofenceCoordinates.add(new LatLng(51.554792, 0.001759));
 
 
         for(int i=0; i<mGeofenceNames.size(); i++) {
@@ -269,7 +285,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // geofence.
                     .setRequestId(mGeofenceNames.get(i))
                             //(latitude, longitude, radius_in_meters)
-                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 20)
+                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 100)
                             //expiration in milliseconds
                     .setExpirationDuration(300000000)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
