@@ -47,7 +47,7 @@ import ioio.lib.util.android.IOIOActivity;
 import ioio.lib.util.android.IOIOService;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener{
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener {
 
     private GoogleMap campusMap; //Google Map Object
     private Context mContext;
@@ -84,9 +84,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        mContext=this;
+        mContext = this;
         //startService(new Intent(this, IOIO_OTG.class));
-       // startService(new Intent(this, MyOrientationListener.class));
+        // startService(new Intent(this, MyOrientationListener.class));
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -94,7 +94,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         //Build geofences that will be used (tour stops)
-
 
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -117,7 +116,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
     }
 
@@ -141,6 +140,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.santander_marker)));
 
         addRoute();
+        distances();
 
         campusMap.moveCamera(CameraUpdateFactory.newLatLngZoom(VILLAGE_BEAUMONT, 17)); //Moves map according to the update with an animation
 
@@ -152,7 +152,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         left = (EditText) findViewById(R.id.left);
         right = (EditText) findViewById(R.id.right);
 
-        right.setText("0");
+        right.setText("20");
         left.setText("0");
 
 
@@ -181,8 +181,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //populateGeofences();
 
 
-               // LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-               // LocationListener mlocListener = new MyLocationListener();
+                // LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                // LocationListener mlocListener = new MyLocationListener();
                 //mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
             }
         });
@@ -191,15 +191,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View arg0) {
                 Button start = (Button) arg0;
 
-                populateGeofences();
+                    populateGeofences();
 
             }
         });
     }
 
 
-
-    private void addRoute(){
+    private void addRoute() {
 
         Location loc = new Location("Src");
         loc.setLongitude(51.557912);
@@ -212,8 +211,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float degree = loc.bearingTo(dest);
         Log.d("Bearing w/l", degree + " degrees");
 
-        ArrayList<LatLng> mRoute = new ArrayList <LatLng>();
-        ArrayList<LatLng> mRoute2 = new ArrayList <LatLng>();
+        ArrayList<LatLng> mRoute = new ArrayList<LatLng>();
+        ArrayList<LatLng> mRoute2 = new ArrayList<LatLng>();
 
 
         mRoute.add(new LatLng(51.524855, -0.038531)); //Starting Point
@@ -247,20 +246,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    /**This method contains geofence data, all of the tour stops**/
+    /**
+     * This method contains geofence data, all of the tour stops
+     **/
 
     public void populateGeofences() {
 
         //Empty list for storing geofences
         mGeofenceNames = new ArrayList<String>();
-        mGeofenceCoordinates = new ArrayList <LatLng>();
+        mGeofenceCoordinates = new ArrayList<LatLng>();
         mGeofenceList = new ArrayList<Geofence>();
 
         mGeofenceNames.add("Maynard House");
         //mGeofenceNames.add("Varey House/The Curve");
         mGeofenceNames.add("Village Shop/Beaumont Court");
         mGeofenceNames.add("Santander Bank");
-        //mGeofenceNames.add("France House");
         mGeofenceNames.add("Turning Point");
         mGeofenceNames.add("Canalside");
         mGeofenceNames.add("Home");
@@ -271,24 +271,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //mGeofenceCoordinates.add(VAREY_CURVE);
         mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
         mGeofenceCoordinates.add(SANTANDER);
-        //mGeofenceCoordinates.add(new LatLng(51.557935, 0.002382));
-        //mGeofenceCoordinates.add(new LatLng(51.526590, -0.039799));
-        mGeofenceCoordinates.add(new LatLng(51.526569, -0.039912));
+        mGeofenceCoordinates.add(new LatLng(51.526576, -0.039908));
         mGeofenceCoordinates.add(new LatLng(51.526185, -0.039564));
-        mGeofenceCoordinates.add(new LatLng(51.557910, 0.002358));
-        mGeofenceCoordinates.add(new LatLng(51.554792, 0.001759));
+        mGeofenceCoordinates.add(new LatLng(51.522736, -0.043224));
+        mGeofenceCoordinates.add(new LatLng(51.523015, -0.042175));
 
 
-        for(int i=0; i<mGeofenceNames.size(); i++) {
-            mGeofenceList.add(new Geofence.Builder()
-                    // Set the request ID of the geofence. This is a string to identify this
-                    // geofence.
-                    .setRequestId(mGeofenceNames.get(i))
-                            //(latitude, longitude, radius_in_meters)
-                    .setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 100)
-                            //expiration in milliseconds
-                    .setExpirationDuration(300000000)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+        for (int i = 0; i < mGeofenceNames.size();i++){
+        mGeofenceList.add(new Geofence.Builder()
+        // Set the request ID of the geofence. This is a string to identify this
+        // geofence.
+        .setRequestId(mGeofenceNames.get(i))
+        //(latitude, longitude, radius_in_meters)
+        .setCircularRegion(mGeofenceCoordinates.get(i).latitude,mGeofenceCoordinates.get(i).longitude,Integer.valueOf(right.getText().toString()))
+        //expiration in milliseconds
+        .setExpirationDuration(300000000)
+        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                     .build());
         }
         //Add geofences to GeofenceStore obect
@@ -296,6 +294,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    public void distances(){
+
+        ArrayList<Integer> d = new ArrayList<Integer>();
+
+        Location france_house = new Location("France House");
+        france_house.setLatitude(51.526590);
+        france_house.setLongitude(-0.039812);
+
+        Location turning_point = new Location("Turning Point");
+        turning_point.setLatitude(51.526575);
+        turning_point.setLongitude(-0.039909);
+
+        Location turning_canal = new Location("Turning Canal");
+        turning_canal.setLatitude(51.526117);
+        turning_canal.setLongitude(-0.039722);
+
+        Location canal_side = new Location("Canal Side");
+        canal_side.setLatitude(51.526142);
+        canal_side.setLongitude(-0.039536);
+
+        float bearing = france_house.bearingTo(turning_point);
+        float distance = france_house.distanceTo(turning_point);
+        Log.v("B/D", "FRANCE HOUSE - TURNING POINT -- Bearing: " + bearing + ", Distance: " + distance);
+
+        float bearing2 = turning_point.bearingTo(turning_canal);
+        float distance2 = turning_point.distanceTo(turning_canal);
+        Log.v("B/D", "TURNING POINT - TURNING CANAL -- Bearing: " + bearing2 + ", Distance: " + distance2);
+
+        float bearing3 = turning_canal.bearingTo(canal_side);
+        float distance3 = turning_canal.distanceTo(canal_side);
+        Log.v("B/D", "TURNING CANAL - CANAL SIDE -- Bearing: " + bearing3 + ", Distance: " + distance3);
+
+    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -316,22 +347,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mSensorManager.unregisterListener(this);
     }
 
+    float mGravity[];
+    float mGeomagnetic[];
+    float orientation[] = new float[3];
+    float Rot[] = new float[9];
+    float I[] = new float[9];
+    boolean success;
+    float azimuth;
+    float pitch_angle;
+    float roll_angle;
+
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float azimuth_angle = event.values[0];
-        float pitch_angle = event.values[1];
-        float roll_angle = event.values[2];
-        // Do something with these orientation angles.
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            mGravity = event.values;
+        }
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            mGeomagnetic = event.values;
+        }
+        if (mGravity != null && mGeomagnetic != null) {
+            success = SensorManager.getRotationMatrix(Rot, I, mGravity, mGeomagnetic);
+            if (success) {
+                SensorManager.getOrientation(Rot, orientation);
+                azimuth = orientation[0];
+                pitch_angle = orientation[1];
+                roll_angle = orientation[2];
+                Log.v("Orientation", Double.toString(Math.toDegrees(azimuth)));
+            }
 
-        Log.v("Orientation", Float.toString(event.values[0]));
-       // try
-       // {
-           // Thread.sleep(100);
-       // }
-        //catch(InterruptedException e){}
+
+        }
+
     }
-
 }
-
 
 

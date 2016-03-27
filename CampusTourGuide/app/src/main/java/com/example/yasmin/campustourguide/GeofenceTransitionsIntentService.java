@@ -5,10 +5,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
@@ -29,7 +32,7 @@ import java.util.Map;
 public class GeofenceTransitionsIntentService extends IntentService {
 
     protected static final String TAG = "GeofenceIntentIS";
-
+    MediaPlayer mysound1;
     /**
      * This constructor is required, and calls the super IntentService(String)
      * constructor with the name for a worker thread.
@@ -71,7 +74,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     private void sendNotification(Context context, String notificationText, String notificationTitle) {
 
         Log.d("Geofence", "Geofence detected!");
-        getRouting(notificationText);
+
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.queenmary)
@@ -84,6 +87,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 getSystemService(NOTIFICATION_SERVICE);
         //Builds notification and issues it
         notificationManager.notify(0,notificationBuilder.build());
+
+        getRouting(notificationText);
 
 
 
@@ -111,11 +116,25 @@ public class GeofenceTransitionsIntentService extends IntentService {
         // MapsActivity.esc = true;
 
         if (tourStop.contains("Home")){
-            MapsActivity.esc = true;
+           // MapsActivity.esc = true;
+            try {
+                musicOn();
+            }catch(InterruptedException e){}
+
         }
 
         if (tourStop.contains("Test")){
-           // MapsActivity.esc = true;
+            MapsActivity.esc = true;
+        }
+
+    }
+
+    private void musicOn() throws InterruptedException{
+        if ((mysound1 == null)){
+
+            mysound1 = MediaPlayer.create(this, R.raw.dog);
+            mysound1.start();
+            mysound1 = null;
         }
 
     }

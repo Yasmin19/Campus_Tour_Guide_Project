@@ -54,7 +54,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:layout_below="@id/left"
-        android:editable="false"/>
+        android:layout_below="@id/left"/>
 
 </fragment>

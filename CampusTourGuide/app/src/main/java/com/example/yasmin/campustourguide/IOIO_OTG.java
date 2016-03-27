@@ -126,8 +126,12 @@ public class IOIO_OTG extends IOIOService {
 					led_.write(true);
 					Thread.sleep(500);
 
-					Backward[0].setDutyCycle(0.5f);
+					Forward[0].setDutyCycle(0.5f);
 					Forward[1].setDutyCycle(0.52f);
+				}
+				else {
+					Forward[0].setDutyCycle(0f);
+					Forward[1].setDutyCycle(0f);
 				}
 
 				MapsActivity.flagButton.setOnClickListener(new Button.OnClickListener() {
