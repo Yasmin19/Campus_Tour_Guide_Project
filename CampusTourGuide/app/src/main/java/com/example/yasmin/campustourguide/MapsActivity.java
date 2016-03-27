@@ -79,22 +79,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
     private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
 
+    public static Location[] locName = new Location[4];
+    public static float[] locBearing = new float[3];
+    public static float[] locDistance = new float[3];
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mContext = this;
-        //startService(new Intent(this, IOIO_OTG.class));
-        // startService(new Intent(this, MyOrientationListener.class));
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        //Build geofences that will be used (tour stops)
-
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         // mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
@@ -296,35 +296,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void distances(){
 
-        ArrayList<Integer> d = new ArrayList<Integer>();
+        locName[0] = new Location("France House");
+        locName[0].setLatitude(51.526590);
+        locName[0].setLongitude(-0.039812);
 
-        Location france_house = new Location("France House");
-        france_house.setLatitude(51.526590);
-        france_house.setLongitude(-0.039812);
+        locName[1] = new Location("Turning Point");
+        locName[1].setLatitude(51.526575);
+        locName[1].setLongitude(-0.039909);
 
-        Location turning_point = new Location("Turning Point");
-        turning_point.setLatitude(51.526575);
-        turning_point.setLongitude(-0.039909);
+        locName[2] = new Location("Turning Canal");
+        locName[2].setLatitude(51.526117);
+        locName[2].setLongitude(-0.039722);
 
-        Location turning_canal = new Location("Turning Canal");
-        turning_canal.setLatitude(51.526117);
-        turning_canal.setLongitude(-0.039722);
+        locName[3] = new Location("Canal Side");
+        locName[3].setLatitude(51.526142);
+        locName[3].setLongitude(-0.039536);
 
-        Location canal_side = new Location("Canal Side");
-        canal_side.setLatitude(51.526142);
-        canal_side.setLongitude(-0.039536);
+        locBearing[0] = locName[0].bearingTo(locName[1]);
+        locDistance[0] = locName[0].distanceTo(locName[1]);
+        Log.v("B/D", "FRANCE HOUSE - TURNING POINT -- Bearing: " + locBearing[0] + ", Distance: " + locDistance[0]);
 
-        float bearing = france_house.bearingTo(turning_point);
-        float distance = france_house.distanceTo(turning_point);
-        Log.v("B/D", "FRANCE HOUSE - TURNING POINT -- Bearing: " + bearing + ", Distance: " + distance);
+        locBearing[1] = locName[1].bearingTo(locName[2]);
+        locDistance[1] = locName[1].distanceTo(locName[2]);
+        Log.v("B/D", "TURNING POINT - TURNING CANAL -- Bearing: " +  locBearing[1] + ", Distance: " + locDistance[1]);
 
-        float bearing2 = turning_point.bearingTo(turning_canal);
-        float distance2 = turning_point.distanceTo(turning_canal);
-        Log.v("B/D", "TURNING POINT - TURNING CANAL -- Bearing: " + bearing2 + ", Distance: " + distance2);
-
-        float bearing3 = turning_canal.bearingTo(canal_side);
-        float distance3 = turning_canal.distanceTo(canal_side);
-        Log.v("B/D", "TURNING CANAL - CANAL SIDE -- Bearing: " + bearing3 + ", Distance: " + distance3);
+        locBearing[2] = locName[2].bearingTo(locName[3]);
+        locDistance[2] = locName[2].distanceTo(locName[3]);
+        Log.v("B/D", "TURNING CANAL - CANAL SIDE -- Bearing: " + locBearing[2] + ", Distance: " + locDistance[2]);
+        
 
     }
 
