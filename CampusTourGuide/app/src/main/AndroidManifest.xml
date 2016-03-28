@@ -35,6 +35,10 @@
 
         <service android:name= ".IOIO_OTG"/>
 
+        <service android:name= ".MyOrientationListener"/>
+
+
+
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps">

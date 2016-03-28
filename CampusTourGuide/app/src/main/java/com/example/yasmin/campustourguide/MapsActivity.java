@@ -47,7 +47,7 @@ import ioio.lib.util.android.IOIOActivity;
 import ioio.lib.util.android.IOIOService;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap campusMap; //Google Map Object
     private Context mContext;
@@ -89,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static double azimuth360;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,10 +102,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        // mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
+        startService(new Intent(getApplicationContext(), MyOrientationListener.class));
     }
 
     @Override
@@ -188,6 +189,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 // LocationListener mlocListener = new MyLocationListener();
                 //mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
+                //SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
             }
         });
 
@@ -330,7 +333,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-
+/*
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Do something here if sensor accuracy changes.
@@ -388,7 +391,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
-    }
+    }*/
 }
 
 

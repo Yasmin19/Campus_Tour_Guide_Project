@@ -85,7 +85,7 @@ public class IOIO_OTG extends IOIOService {
 					Encoder[i] = ioio_.openDigitalInput(10 + i, DigitalInput.Spec.Mode.PULL_DOWN);
 				}
 
-				Thread sensorThread = new SensorActivity(ioio_, led_);
+				Thread sensorThread = new SensorActivity(ioio_);
 				sensorThread.start();
 
 				//populateGeofences();
