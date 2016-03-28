@@ -54,7 +54,7 @@ public class MyOrientationListener extends Activity implements SensorEventListen
         float roll_angle = event.values[2];
         // Do something with these orientation angles.
 
-        Log.v("Orientation", Float.toString(event.values[0]));
+        //Log.v("Orientation", Float.toString(event.values[0]));
     }
 
 }

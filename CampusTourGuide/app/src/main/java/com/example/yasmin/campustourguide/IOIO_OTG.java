@@ -69,7 +69,7 @@ public class IOIO_OTG extends IOIOService {
 
 			@Override
 			protected void setup() throws ConnectionLostException, InterruptedException{
-				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
+				//led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
 
 				//Toast.makeText(getApplicationContext(), MapsActivity.msg, Toast.LENGTH_SHORT).show();
 				/*Right_Forward = ioio_.openPwmOutput(34, 100);
@@ -84,6 +84,10 @@ public class IOIO_OTG extends IOIOService {
 				for (int i = 0; i < 4; i++) {
 					Encoder[i] = ioio_.openDigitalInput(10 + i, DigitalInput.Spec.Mode.PULL_DOWN);
 				}
+
+				Thread sensorThread = new SensorActivity(ioio_, led_);
+				sensorThread.start();
+
 				//populateGeofences();
 				//Right_Forward.setDutyCycle(0.52f);
 				//Left_Forward.setDutyCycle(0.5f);
@@ -119,7 +123,7 @@ public class IOIO_OTG extends IOIOService {
 			int flag=0;
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
-
+/*
 				if (!MapsActivity.esc) {
 					led_.write(false);
 					Thread.sleep(500);
@@ -132,7 +136,7 @@ public class IOIO_OTG extends IOIOService {
 				else {
 					Forward[0].setDutyCycle(0f);
 					Forward[1].setDutyCycle(0f);
-				}
+				}*/
 
 				MapsActivity.flagButton.setOnClickListener(new Button.OnClickListener() {
 					public void onClick(View arg0) {

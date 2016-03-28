@@ -83,6 +83,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static float[] locBearing = new float[3];
     public static float[] locDistance = new float[3];
 
+    public static double azimuthLPF=-1;
+    int alpha=10;
+    public static double azimuthDeg;
+    public static double azimuth360;
 
 
     @Override
@@ -323,7 +327,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locBearing[2] = locName[2].bearingTo(locName[3]);
         locDistance[2] = locName[2].distanceTo(locName[3]);
         Log.v("B/D", "TURNING CANAL - CANAL SIDE -- Bearing: " + locBearing[2] + ", Distance: " + locDistance[2]);
-        
+
 
     }
 
@@ -371,7 +375,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 azimuth = orientation[0];
                 pitch_angle = orientation[1];
                 roll_angle = orientation[2];
-                Log.v("Orientation", Double.toString(Math.toDegrees(azimuth)));
+
+                azimuthDeg = Math.toDegrees(azimuth);
+
+                if (azimuthDeg < 0) {
+                    azimuth360 = azimuthDeg +360;
+                }
+               // Log.v("Orientation", Double.toString(Math.toDegrees(azimuth360)));
+                Log.v("Orientation", Double.toString(azimuthDeg));
             }
 
 
