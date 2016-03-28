@@ -112,7 +112,11 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         int angle = 0;
 
-        if (tourStop.contains("Santander Bank")){}
+        if (tourStop.contains("Santander Bank")){
+            try {
+                musicOn();
+            }catch(InterruptedException e){}
+        }
         // MapsActivity.esc = true;
 
         if (tourStop.contains("Home")){

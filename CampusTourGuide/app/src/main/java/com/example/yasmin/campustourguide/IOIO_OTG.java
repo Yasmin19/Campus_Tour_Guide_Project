@@ -4,6 +4,7 @@ import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.IOIO.VersionType;
+import ioio.lib.api.PulseInput;
 import ioio.lib.api.PwmOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
@@ -49,8 +50,13 @@ public class IOIO_OTG extends IOIOService {
 	private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
 	private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
 
+	public static double azimuthStuff;
+	public static double azimuthRaw;
+	private DigitalOutput Trigger;
+	private PulseInput Echo;
 	private Context mContext=this;
-	private DigitalOutput led_;
+	public static DigitalOutput led_;
+	public static DigitalOutput led2;
 	private  PwmOutput Forward[] = new PwmOutput[2];
 	private  PwmOutput Backward[] = new PwmOutput[2];
 	private  DigitalInput Encoder[] = new DigitalInput[4];
@@ -80,35 +86,20 @@ public class IOIO_OTG extends IOIOService {
 				Forward[1] = ioio_.openPwmOutput(34, 100);
 				Backward[0] = ioio_.openPwmOutput(37, 100);
 				Backward[1] = ioio_.openPwmOutput(35, 100);
-				int base = 10;
+				//led2 = ioio_.openDigitalOutput(41);
+
+				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
+				led2 = ioio_.openDigitalOutput(41);
+
 				for (int i = 0; i < 4; i++) {
-					Encoder[i] = ioio_.openDigitalInput(10 + i, DigitalInput.Spec.Mode.PULL_DOWN);
+					Encoder[i] = ioio_.openDigitalInput(10 + i, DigitalInput.Spec.Mode.PULL_DOWN);//pins 10-13
 				}
+				Trigger = ioio_.openDigitalOutput(1);
+				Echo = ioio_.openPulseInput(2, PulseInput.PulseMode.POSITIVE);
 
-				Thread sensorThread = new SensorActivity(ioio_);
-				sensorThread.start();
+				//Thread sensorThread = new SensorActivity(ioio_);
+				//sensorThread.start();
 
-				//populateGeofences();
-				//Right_Forward.setDutyCycle(0.52f);
-				//Left_Forward.setDutyCycle(0.5f);
-//1+3/4 1 wheel moving for 90 degree turn
-				/*
-				switch(angle){
-					case 0:
-						right = 0.57f;
-						left = 0.55f;
-						delay = 0;
-						break;
-					case 90:
-						right = 58/255f;
-						left = 58/255f;
-						delay = 0;
-
-					case 270:
-						right = 1f;
-						left = 1f;
-						delay = 825;
-				}*/
 
 			}
 			double thing=0.00087266;
@@ -120,52 +111,43 @@ public class IOIO_OTG extends IOIOService {
 				return (int)(m/thing);
 			}
 
-			int flag=0;
+
+
+			public void stopMotors() throws InterruptedException, ConnectionLostException {
+				Forward[1].setDutyCycle(0f);
+				Forward[0].setDutyCycle(0f);
+				Backward[0].setDutyCycle(0f);
+				Backward[1].setDutyCycle(0f);
+			}
+
+			int flag = 0;
+			long sysTime = 0;
+			double val;
+
 			@Override
 			public void loop() throws ConnectionLostException, InterruptedException {
-/*
-				if (!MapsActivity.esc) {
-					led_.write(false);
-					Thread.sleep(500);
-					led_.write(true);
-					Thread.sleep(500);
-
-					Forward[0].setDutyCycle(0.5f);
-					Forward[1].setDutyCycle(0.52f);
-				}
-				else {
-					Forward[0].setDutyCycle(0f);
-					Forward[1].setDutyCycle(0f);
-				}*/
-
 				MapsActivity.flagButton.setOnClickListener(new Button.OnClickListener() {
 					public void onClick(View arg0) {
 						Button thing = (Button) arg0;
-						try {
-							//codeCheck(mtodeg(3));
-							//codeCheckturnLeft(MapsActivity.angleLeft, MapsActivity.angleRight);//Right 393  Left 394
-							//codeCheckturnRight(393, 394);//right 394  left 393
-							codeCheck(mtodeg(50));
-							/*
-							if(MapsActivity.esc)
-							{
-								MapsActivity.esc=false;
-								codeCheckturnRight(393, 394);
-							}*/
-							//codeCheck(1, mtodeg(3));
-						} catch (ConnectionLostException e) {
-						} catch (InterruptedException b) {
-						}
+						flag = 2;
 					}
 				});
-				//if (MapsActivity.esc) {
+				if (flag == 2) {
+					codeCheckCompass((int)MapsActivity.locBearing[0],(double)MapsActivity.locDistance[0]);
+					codeCheckCompass((int)MapsActivity.locBearing[1],(double)MapsActivity.locDistance[1]);
+					codeCheckCompass((int)MapsActivity.locBearing[2],(double)MapsActivity.locDistance[2]);
+					codeCheckCompass((int)MapsActivity.locBearing[3],(double)MapsActivity.locDistance[3]);
+					flag++;
+				}
+				/*if(sense()<40)
+				{
+					stopMotors();
+				}*/
 			}
-
 			//codeCheck(1, mtodeg(10));//right wheel needs 2 less drg than left
 			//Thread.sleep(3000);
 
-
-			public void codeCheck(int deg) throws ConnectionLostException, InterruptedException {
+			/*public void codeCheck(int deg) throws ConnectionLostException, InterruptedException {
 				int deg1=deg-2;
 				float stuff=0.005f;
 				int trigg=0;
@@ -181,97 +163,14 @@ public class IOIO_OTG extends IOIOService {
 				B[1] = Encoder[3].read();
 				Forward[0].setDutyCycle(0.5f);
 				Forward[1].setDutyCycle(0.52f);
-				while ((deg != 0 || deg1!=0)&& !MapsActivity.esc) {
-					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read()))&&deg!=0) {
-						deg--;
-						A[0] = temp1;
-						B[0] = temp2;
-					}
-					if(deg==0)
-					{
-						Forward[0].setDutyCycle(0);
-					}
-					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read()))&&deg1!=0) {
-						deg1--;
-						A[1] = temp1;
-						B[1] = temp2;
-					}
-					if(deg1==0)
-					{
-						Forward[1].setDutyCycle(0);
-					}
-					if(deg1+adapt1<deg)
-					{
-						if (trigg!=1 && speedLorig<speedL+0.1) {
-							speedL += stuff;
-							Forward[0].setDutyCycle(speedL);
-							trigg = 1;
-						}
-					}
-					else if(deg1+adapt1+10<deg)
-					{
-						if (trigg!=2 && speedLorig<speedL+0.1) {
-							speedL += stuff;
-							Forward[0].setDutyCycle(speedL);
-							trigg = 2;
-						}
-					}
-					else if(trigg==1 || trigg==2)
-					{
-						speedL -= stuff*trigg;
-						Forward[0].setDutyCycle(speedL);
-						trigg=0;
-					}
-					if(deg+adapt2<deg1)
-					{
-						if(trigg!=3 && speedRorig<speedR+0.1)
-						{
-							speedR+=stuff;
-							Forward[1].setDutyCycle(speedR);
-							trigg=3;
-						}
-					}
-					else if(deg+adapt2+10<deg1)
-					{
-						if (trigg!=4 && speedRorig<speedR+0.1) {
-							speedR += stuff;
-							Forward[1].setDutyCycle(speedR);
-							trigg = 4;
-						}
-					}
-					else if(trigg==3 || trigg==4)
-					{
-						speedR-=stuff*(trigg-2);
-						Forward[1].setDutyCycle(speedR);
-						trigg=0;
-					}
-				}
-
-				if(MapsActivity.esc)
-				{
-					Forward[0].setDutyCycle(0);
-					Forward[1].setDutyCycle(0);
-				}
-				//Forward[side].setDutyCycle(0);
-			}
-
-
-			public void codeCheckturnLeft(int deg, int deg1) throws ConnectionLostException, InterruptedException {
-				//int deg1 = deg - 2;
-				A[0] = Encoder[0].read();
-				B[0] = Encoder[1].read();
-				A[1] = Encoder[2].read();
-				B[1] = Encoder[3].read();
-				Backward[0].setDutyCycle(0.5f);
-				Forward[1].setDutyCycle(0.52f);
-				while ((deg != 0 || deg1 != 0) && !MapsActivity.esc) {
+				while ((deg != 0 || deg1!=0)) {//&& !MapsActivity.esc) {
 					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
 						deg--;
 						A[0] = temp1;
 						B[0] = temp2;
 					}
 					if (deg == 0) {
-						Backward[0].setDutyCycle(0);
+						Forward[0].setDutyCycle(0);
 					}
 					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read())) && deg1 != 0) {
 						deg1--;
@@ -281,26 +180,402 @@ public class IOIO_OTG extends IOIOService {
 					if (deg1 == 0) {
 						Forward[1].setDutyCycle(0);
 					}
-				}
+					if (deg1 + adapt1 < deg) {
+						Forward[1].setDutyCycle(speedR+0.05f);
 
-				if(MapsActivity.esc)
-				{
-					Backward[0].setDutyCycle(0);
-					Forward[1].setDutyCycle(0);
+					}
+					if (deg + adapt1 < deg1) {
+						Forward[1].setDutyCycle(speedR-0.05f);
+					}
+
 				}
-				//Forward[side].setDutyCycle(0);
+			}*/
+
+
+			/*
+					while(flag3==0) {
+				azimuthAver = azimuthStuff;
+				if(abs(azimuthAver-angle)>10)
+				{
+					if(((azimuthAver-angle)<0))//
+					{
+						codeCheckturnRight((int) abs(azimuthAver - angle));
+						Thread.sleep(3000);
+						//Toast.makeText(getApplicationContext(), Double.toString(azimuthAve), Toast.LENGTH_SHORT).show();
+					}
+					else
+					{
+						codeCheckturnLeft((int) abs(azimuthAver-angle));
+						Thread.sleep(3000);
+						//Toast.makeText(getApplicationContext(),Double.toString(azimuthAve) , Toast.LENGTH_SHORT).show();
+					}
+
+				}
+				else
+				{
+					//Toast.makeText(getApplicationContext(), Double.toString(azimuthAve), Toast.LENGTH_SHORT).show();
+					//Log.v("Orientation", Double.toString(azimuthAve));
+					flag3++;
+				}*/
+
+
+
+
+
+
+
+			public double abs(double val) {
+				if (val < 0) {
+					val = -val;
+				}
+				return val;
+			}
+
+			int flag1 = 0;
+			int flag2 = 0;
+			int flag3 = 0;
+			int extra = 5;//extra used for tuning the sensitivity
+
+			public void codeCheckCompass(int angle, double metres) throws ConnectionLostException, InterruptedException {
+				if(angle<0)
+				{
+					angle+=360;
+				}
+				int deg;
+				int deg1;
+				float speedL = 0.5f;
+				float speedR = 0.5f;
+				float thingy = 1f;
+				double azimuthAver;
+				speedL *= thingy;
+				speedR *= thingy;
+				flag1 = 0;
+				flag2 = 0;
+				flag3 = 0;
+				while (azimuthStuff == -1) ;
+
+				while (flag1 == 0) {
+					azimuthAver = azimuthStuff;
+					if (azimuthAver < 10 && 350 < angle) {
+						if ((360 - angle + azimuthAver) > 10) {
+							stopMotors();
+							gotoAngle(angle);
+							flag2 = 1;
+						}
+					}
+					if (azimuthAver > 350 - extra && angle < 10 + extra && flag2 == 0) {
+						if ((360 - azimuthAver + angle) > 5 + extra) {
+							stopMotors();
+							gotoAngle(angle);
+							flag2 = 1;
+						}
+					}
+					if (azimuthAver > (angle + 10) && flag2 == 0) {
+						stopMotors();
+						gotoAngle(angle);
+						flag2 = 1;
+					}
+					if (azimuthAver + 10 < angle && flag2 == 0) {
+						stopMotors();
+						gotoAngle(angle);
+						flag2 = 1;
+					}
+					if (flag2 == 1) {
+						Thread.sleep(500);
+						if (metres >= 1) {
+							deg = mtodeg(1);
+							deg1 = deg - 2;
+							metres-=1;
+						}
+						else {
+							deg=mtodeg(metres);
+							deg1=deg-2;
+							metres-=metres;
+							flag1=1;
+							flag2=1;
+							flag3=1;
+						}
+						A[0] = Encoder[0].read();
+						B[0] = Encoder[1].read();
+						A[1] = Encoder[2].read();
+						B[1] = Encoder[3].read();
+						Forward[0].setDutyCycle(speedL);
+						Forward[1].setDutyCycle(speedR);
+						flag2 = 0;
+						flag3=0;
+						while (flag3 == 0) {
+							if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
+								deg--;
+								A[0] = temp1;
+								B[0] = temp2;
+							}
+							if ((A[1] != (temp3 = Encoder[2].read()) || B[1] != (temp4 = Encoder[3].read())) && deg1 != 0) {
+								deg1--;
+								A[1] = temp3;
+								B[1] = temp4;
+							}
+							if (deg1 == 0 || deg == 0) {
+								flag3++;
+								stopMotors();
+							}
+						}
+					}
+				}
 			}
 
 
-			public void codeCheckturnRight(int deg, int deg1) throws ConnectionLostException, InterruptedException {
+/*
+				A[0] = Encoder[0].read();
+				B[0] = Encoder[1].read();
+				A[1] = Encoder[2].read();
+				B[1] = Encoder[3].read();
+				Forward[0].setDutyCycle(0f);
+				Forward[1].setDutyCycle(speedR);
+
+				flag1=0;
+				while(flag1==0){
+					azimuthAve = MyOrientationListener.azimuthAve;
+					if (azimuthAve <10 && 350 < angle) {
+						if((360-angle + azimuthAve)>5){
+							stopMotors();
+							codeCheckturnLeft((int) (360 - angle + azimuthAve));
+							flag2=1;
+						}
+					}
+					if(azimuthAve>350 && angle<10 && flag2==0){
+						if((360-azimuthAve + angle)>5) {
+							stopMotors();
+							codeCheckturnRight((int) (360 - azimuthAve + angle));
+							flag2=1;
+						}
+					}
+					if(azimuthAve>(angle+5) && flag2==0)
+					{
+						stopMotors();
+						codeCheckturnLeft((int) (azimuthAve - angle));
+						flag2=1;
+						Thread.sleep(500);
+					}
+					if(azimuthAve+5<angle && flag2==0)
+					{
+						stopMotors();
+						codeCheckturnRight((int) (angle - azimuthAve));
+						flag2=1;
+					}
+					if(flag2==1) {
+						Thread.sleep(500);
+						A[0] = Encoder[0].read();
+						B[0] = Encoder[1].read();
+						A[1] = Encoder[2].read();
+						B[1] = Encoder[3].read();
+						Forward[0].setDutyCycle(speedL);
+						Forward[1].setDutyCycle(speedR);
+						flag2 = 0;
+					}
+					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
+						deg--;
+						A[0] = temp1;
+						B[0] = temp2;
+					}
+					if ((A[1] != (temp3 = Encoder[2].read()) || B[1] != (temp4 = Encoder[3].read())) && deg1 != 0) {
+						deg1--;
+						A[1] = temp3;
+						B[1] = temp4;
+					}
+					if (deg1 == 0 || deg == 0) {
+						flag1++;
+					}
+				}
+				flag1=0;
+				stopMotors();*/
+				/*if(MapsActivity.esc)
+				{
+					Forward[0].setDutyCycle(0);
+					Forward[1].setDutyCycle(0);
+				}*/
+			//Forward[side].setDutyCycle(0);
+
+
+			public boolean sensorStop()throws InterruptedException,ConnectionLostException
+			{
+				if(sense()<60)
+				{
+					return false;
+				}
+				return true;
+			}
+
+
+			int extradeg=10;
+			public void gotoAngle(int angle)throws ConnectionLostException,InterruptedException
+			{
+
+				if(azimuthStuff-angle<0)
+				{
+					Backward[1].setDutyCycle(0.30f);
+					Forward[0].setDutyCycle(0.30f);
+				}
+				else
+				{
+					Backward[0].setDutyCycle(0.30f);
+					Forward[1].setDutyCycle(0.30f);
+				}
+				while(abs(azimuthStuff-angle)>10);
+				stopMotors();
+
+
+			}
+
+
+			public void codeCheck(int deg) throws ConnectionLostException, InterruptedException {
+				int deg1=deg-2;
+				float stuff=0.005f;
+				int trigg=0;
+				int adapt1=10;
+				int adapt2=10;
+				float speedL=0.5f;
+				float speedR=0.5f;
+				float thingy=1f;
+				speedL*=thingy;
+				speedR*=thingy;
+				float speedLorig=speedL;
+				float speedRorig=speedR;
+				int checkflag=0;
+				A[0] = Encoder[0].read();
+				B[0] = Encoder[1].read();
+				A[1] = Encoder[2].read();
+				B[1] = Encoder[3].read();
+				Forward[0].setDutyCycle(speedL);
+				Forward[1].setDutyCycle(speedR);
+				while (checkflag==0){//&& !MapsActivity.esc) {
+					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read()))&&deg!=0) {
+						deg--;
+						A[0] = temp1;
+						B[0] = temp2;
+					}
+					if ((A[1] != (temp3 = Encoder[2].read()) || B[1] != (temp4 = Encoder[3].read()))&&deg1!=0) {
+						deg1--;
+						A[1] = temp3;
+						B[1] = temp4;
+					}
+					if(deg1==0 || deg==0)
+					{
+						Forward[1].setDutyCycle(0);
+						deg=0;
+						deg1=0;
+						Forward[0].setDutyCycle(0);
+						checkflag++;
+					}
+					if(deg1+adapt1<deg)
+					{
+						if (trigg!=1 && speedLorig<speedL+0.1*thingy) {
+							speedL += stuff*thingy;
+							Forward[0].setDutyCycle(speedL);
+							trigg = 1;
+						}
+					}
+					else if(deg1+adapt1+10<deg)
+					{
+						if (trigg!=2 && speedLorig<speedL+0.1*thingy) {
+							speedL += stuff*thingy;
+							Forward[0].setDutyCycle(speedL);
+							trigg = 2;
+						}
+					}
+					else if(trigg==1 || trigg==2)
+					{
+						speedL -= stuff*trigg*thingy;
+						Forward[0].setDutyCycle(speedL);
+						trigg=0;
+					}
+					if(deg+adapt2<deg1)
+					{
+						if(trigg!=3 && speedRorig<speedR+0.1*thingy)
+						{
+							speedR+=stuff*thingy;
+							Forward[1].setDutyCycle(speedR);
+							trigg=3;
+						}
+					}
+					else if(deg+adapt2+10<deg1)
+					{
+						if (trigg!=4 && speedRorig<speedR+0.1*thingy) {
+							speedR += stuff*thingy;
+							Forward[1].setDutyCycle(speedR);
+							trigg = 4;
+						}
+					}
+					else if(trigg==3 || trigg==4)
+					{
+						speedR-=stuff*(trigg-2)*thingy;
+						Forward[1].setDutyCycle(speedR);
+						trigg=0;
+
+					}
+				}
+				stopMotors();
+				/*if(MapsActivity.esc)
+				{
+					Forward[0].setDutyCycle(0);
+					Forward[1].setDutyCycle(0);
+				}*/
+				//Forward[side].setDutyCycle(0);
+			}
+
+			public void codeCheckturnLeft(int angle) throws ConnectionLostException, InterruptedException {
 				//int deg1 = deg - 2;
+				int deg=(394/90)*angle;
+				int deg1=(393/90)*angle;
+				flag1=0;
+				A[0] = Encoder[0].read();
+				B[0] = Encoder[1].read();
+				A[1] = Encoder[2].read();
+				B[1] = Encoder[3].read();
+				Backward[0].setDutyCycle(0.5f);
+				Forward[1].setDutyCycle(0.52f);
+				while ((flag1!=2)){//&& !MapsActivity.esc) {
+					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
+						deg--;
+						A[0] = temp1;
+						B[0] = temp2;
+					}
+					if (deg == 0) {
+						Backward[0].setDutyCycle(0f);
+						flag1++;
+					}
+					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read())) && deg1 != 0) {
+						deg1--;
+						A[1] = temp1;
+						B[1] = temp2;
+					}
+					if (deg1 == 0) {
+						Forward[1].setDutyCycle(0f);
+						flag1++;
+					}
+				}
+				flag1=0;
+				stopMotors();
+				/*if(MapsActivity.esc)
+				{
+					Backward[0].setDutyCycle(0);
+					Forward[1].setDutyCycle(0);
+				}*/
+				//Forward[side].setDutyCycle(0);
+			}
+
+			public void codeCheckturnRight(int angle) throws ConnectionLostException, InterruptedException {
+				//int deg1 = deg - 2;
+				int deg=(393/90)*angle;
+				int deg1=(394/90)*angle;
+				int rightflag=0;
+				flag1=0;
 				A[0] = Encoder[0].read();
 				B[0] = Encoder[1].read();
 				A[1] = Encoder[2].read();
 				B[1] = Encoder[3].read();
 				Forward[0].setDutyCycle(0.5f);
 				Backward[1].setDutyCycle(0.52f);
-				while ((deg != 0 || deg1 != 0) && !MapsActivity.esc) {
+				while ((rightflag!=2)){//&& !MapsActivity.esc) {
 					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
 						deg--;
 						A[0] = temp1;
@@ -308,6 +583,7 @@ public class IOIO_OTG extends IOIOService {
 					}
 					if (deg == 0) {
 						Forward[0].setDutyCycle(0);
+						rightflag++;
 					}
 					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read())) && deg1 != 0) {
 						deg1--;
@@ -316,18 +592,50 @@ public class IOIO_OTG extends IOIOService {
 					}
 					if (deg1 == 0) {
 						Backward[1].setDutyCycle(0);
+						rightflag++;
 					}
 				}
-
-				if(MapsActivity.esc)
+				rightflag=0;
+				stopMotors();
+				/*if(MapsActivity.esc)
 				{
 					Backward[1].setDutyCycle(0);
 					Forward[0].setDutyCycle(0);
-				}
+				}*/
 				//Forward[side].setDutyCycle(0);
 			}
 			//394 right
 			//393 left for 90 degree turn
+
+
+
+			public double sense()throws ConnectionLostException,InterruptedException
+			{
+				ping();
+				return detect();
+			}
+
+
+			public void ping()throws ConnectionLostException, InterruptedException {
+				Trigger.write(false);
+				Thread.sleep(5);
+				Trigger.write(true);
+				Thread.sleep(1);
+				Trigger.write(false);
+			}
+
+
+
+			public double detect()throws InterruptedException, ConnectionLostException
+			{
+				return Echo.getDuration() * 34000 / 2;
+			}
+
+
+
+
+
+
 
 
 			public void populateGeofences() {
@@ -416,8 +724,23 @@ public class IOIO_OTG extends IOIOService {
 		super.onDestroy();
 	}
 
+
+	static int marioflag=0;
+	public static boolean asd=false;
+	public static boolean asdf=false;
+	public static void marioStuff(double az,double azraw) throws ConnectionLostException {
+		azimuthStuff=az;
+		azimuthRaw=azraw;
+		asd=!asd;
+		led_.write(asd);
+		marioflag++;
+		if(marioflag>50){
+			marioflag=0;
+			asdf=!asdf;
+			led2.write(asdf);
+		}
+	}
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return null;
-	}
-}
+	}}

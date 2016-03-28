@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import ioio.lib.api.exception.ConnectionLostException;
+
 /**
  * Created by Yasmin on 16/03/2016.
  */
@@ -20,22 +22,7 @@ public class MyOrientationListener extends Service implements SensorEventListene
     private SensorManager mSensorManager;
     private Sensor accelerometer;
     private Sensor magnetometer;
-
-    float mGravity[];
-    float mGeomagnetic[];
-    float orientation[] = new float[3];
-    float Rot[] = new float[9];
-    float I[] = new float[9];
-    boolean success;
-    float azimuth;
-    float pitch_angle;
-    float roll_angle;
-
-    public static double azimuthLPF=-1;
-    int alpha=10;
-    public static double azimuthDeg;
-    public static double azimuth360;
-
+    public static double azimuthAve=-1;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -56,6 +43,21 @@ public class MyOrientationListener extends Service implements SensorEventListene
         // You must implement this callback in your code.
     }
 
+    public static double azimuth1=-1;
+    double azimuth3=-1;
+    double azimuth2=-1;
+    float azimuth;
+    float mGravity[];
+    float mGeomagnetic[];
+    float orientation[] = new float[3];
+    float Rot[] = new float[9];
+    float I[] = new float[9];
+    boolean success;
+
+    float pitch_angle;
+    float roll_angle;
+
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -69,19 +71,28 @@ public class MyOrientationListener extends Service implements SensorEventListene
             if (success) {
                 SensorManager.getOrientation(Rot, orientation);
                 azimuth = orientation[0];
-                pitch_angle = orientation[1];
-                roll_angle = orientation[2];
+                azimuth3=azimuth2;
+                azimuth2=azimuth1;
+                azimuth1 = Math.toDegrees(azimuth);
+                azimuthAve = azimuth1;
 
-                azimuthDeg = Math.toDegrees(azimuth);
-
-                if (azimuthDeg < 0) {
-                    azimuth360 = azimuthDeg + 360;
+                if (azimuth1 < 0) {
+                    azimuth1+=360;
+                    azimuthAve+=360;
                 }
-                // Log.v("Orientation", Double.toString(Math.toDegrees(azimuth360)));
-                Log.v("Orientation", Double.toString(azimuthDeg));
-            }
-        }
+                try {
+                    IOIO_OTG.marioStuff(azimuthAve,azimuth1);
+                }catch(ConnectionLostException e){}
+                //azimuthAve = (azimuth1 + azimuth2 + azimuth3) / 3;
 
+            }
+
+        }
+    }
+
+    public static double getAzimuthAve()
+    {
+        return azimuthAve;
     }
 
     @Override

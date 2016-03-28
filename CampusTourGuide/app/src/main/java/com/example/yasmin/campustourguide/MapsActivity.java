@@ -79,9 +79,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
     private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
 
-    public static Location[] locName = new Location[4];
-    public static float[] locBearing = new float[3];
-    public static float[] locDistance = new float[3];
+    public static Location[] locName = new Location[5];
+    public static float[] locBearing = new float[4];
+    public static float[] locDistance = new float[4];
 
     public static double azimuthLPF=-1;
     int alpha=10;
@@ -101,11 +101,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+       // mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        //accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        //magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        startService(new Intent(getApplicationContext(), MyOrientationListener.class));
+        //startService(new Intent(getApplicationContext(), MyOrientationListener.class));
     }
 
     @Override
@@ -157,7 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         left = (EditText) findViewById(R.id.left);
         right = (EditText) findViewById(R.id.right);
 
-        right.setText("20");
+        right.setText("120");
         left.setText("0");
 
 
@@ -185,6 +185,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 //populateGeofences();
 
+                mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+                accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+                startService(new Intent(getApplicationContext(), MyOrientationListener.class));
 
                 // LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 // LocationListener mlocListener = new MyLocationListener();
@@ -290,7 +295,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // geofence.
         .setRequestId(mGeofenceNames.get(i))
         //(latitude, longitude, radius_in_meters)
-        .setCircularRegion(mGeofenceCoordinates.get(i).latitude,mGeofenceCoordinates.get(i).longitude,Integer.valueOf(right.getText().toString()))
+        .setCircularRegion(mGeofenceCoordinates.get(i).latitude,mGeofenceCoordinates.get(i).longitude,30)
         //expiration in milliseconds
         .setExpirationDuration(300000000)
         .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
@@ -308,28 +313,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locName[0].setLongitude(-0.039812);
 
         locName[1] = new Location("Turning Point");
-        locName[1].setLatitude(51.526575);
-        locName[1].setLongitude(-0.039909);
+        locName[1].setLatitude(51.526577);
+        locName[1].setLongitude(-0.039903);
 
-        locName[2] = new Location("Turning Canal");
-        locName[2].setLatitude(51.526117);
-        locName[2].setLongitude(-0.039722);
+        locName[2] = new Location("Mid Point");
+        locName[2].setLatitude(51.526340);
+        locName[2].setLongitude(-0.039812);
 
-        locName[3] = new Location("Canal Side");
-        locName[3].setLatitude(51.526142);
-        locName[3].setLongitude(-0.039536);
+        locName[3] = new Location("Turning Canal");
+        locName[3].setLatitude(51.526117);
+        locName[3].setLongitude(-0.039722);
+
+        locName[4] = new Location("Canal Side");
+        locName[4].setLatitude(51.526142);
+        locName[4].setLongitude(-0.039536);
 
         locBearing[0] = locName[0].bearingTo(locName[1]);
         locDistance[0] = locName[0].distanceTo(locName[1]);
-        Log.v("B/D", "FRANCE HOUSE - TURNING POINT -- Bearing: " + locBearing[0] + ", Distance: " + locDistance[0]);
+        //Log.v("B/D", "FRANCE HOUSE - TURNING POINT -- Bearing: " + locBearing[0] + ", Distance: " + locDistance[0]);
 
         locBearing[1] = locName[1].bearingTo(locName[2]);
         locDistance[1] = locName[1].distanceTo(locName[2]);
-        Log.v("B/D", "TURNING POINT - TURNING CANAL -- Bearing: " +  locBearing[1] + ", Distance: " + locDistance[1]);
+        //Log.v("B/D", "TURNING POINT - MID-POINT -- Bearing: " +  locBearing[1] + ", Distance: " + locDistance[1]);
 
         locBearing[2] = locName[2].bearingTo(locName[3]);
-        locDistance[2] = locName[2].distanceTo(locName[3]);
-        Log.v("B/D", "TURNING CANAL - CANAL SIDE -- Bearing: " + locBearing[2] + ", Distance: " + locDistance[2]);
+        locDistance[2] = locName[1].distanceTo(locName[2]);
+        //Log.v("B/D", "MID-POINT - TURNING CANAL -- Bearing: " +  locBearing[1] + ", Distance: " + locDistance[1]);
+
+
+        locBearing[3] = locName[3].bearingTo(locName[4]);
+        locDistance[3] = locName[3].distanceTo(locName[4]);
+       // Log.v("B/D", "TURNING CANAL - CANAL SIDE -- Bearing: " + locBearing[2] + ", Distance: " + locDistance[2]);
 
 
     }
