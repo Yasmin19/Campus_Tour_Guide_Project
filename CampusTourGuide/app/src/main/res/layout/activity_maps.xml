@@ -41,19 +41,4 @@
         android:textSize="30sp"/>
 
 
-    <EditText
-        android:id="@+id/left"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:gravity="bottom|left"
-        android:editable="false"/>
-
-    <EditText
-        android:id="@+id/right"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:layout_below="@id/left"/>
-
 </fragment>

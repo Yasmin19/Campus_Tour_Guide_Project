@@ -75,13 +75,7 @@ public class IOIO_OTG extends IOIOService {
 
 			@Override
 			protected void setup() throws ConnectionLostException, InterruptedException{
-				//led_ = ioio_.openDigitalOutput(IOIO.LED_PIN);
 
-				//Toast.makeText(getApplicationContext(), MapsActivity.msg, Toast.LENGTH_SHORT).show();
-				/*Right_Forward = ioio_.openPwmOutput(34, 100);
-				Right_Back = ioio_.openPwmOutput(35, 100);
-				Left_Forward = ioio_.openPwmOutput(36, 100);
-				Left_Back = ioio_.openPwmOutput(37, 100);*/
 				Forward[0] = ioio_.openPwmOutput(36, 100);
 				Forward[1] = ioio_.openPwmOutput(34, 100);
 				Backward[0] = ioio_.openPwmOutput(37, 100);
@@ -144,85 +138,6 @@ public class IOIO_OTG extends IOIOService {
 					stopMotors();
 				}*/
 			}
-			//codeCheck(1, mtodeg(10));//right wheel needs 2 less drg than left
-			//Thread.sleep(3000);
-
-			/*public void codeCheck(int deg) throws ConnectionLostException, InterruptedException {
-				int deg1=deg-2;
-				float stuff=0.005f;
-				int trigg=0;
-				int adapt1=10;
-				int adapt2=10;
-				float speedLorig=0.5f;
-				float speedRorig=0.52f;
-				float speedL=0.5f;
-				float speedR=0.525f;
-				A[0] = Encoder[0].read();
-				B[0] = Encoder[1].read();
-				A[1] = Encoder[2].read();
-				B[1] = Encoder[3].read();
-				Forward[0].setDutyCycle(0.5f);
-				Forward[1].setDutyCycle(0.52f);
-				while ((deg != 0 || deg1!=0)) {//&& !MapsActivity.esc) {
-					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
-						deg--;
-						A[0] = temp1;
-						B[0] = temp2;
-					}
-					if (deg == 0) {
-						Forward[0].setDutyCycle(0);
-					}
-					if ((A[1] != (temp1 = Encoder[2].read()) || B[1] != (temp2 = Encoder[3].read())) && deg1 != 0) {
-						deg1--;
-						A[1] = temp1;
-						B[1] = temp2;
-					}
-					if (deg1 == 0) {
-						Forward[1].setDutyCycle(0);
-					}
-					if (deg1 + adapt1 < deg) {
-						Forward[1].setDutyCycle(speedR+0.05f);
-
-					}
-					if (deg + adapt1 < deg1) {
-						Forward[1].setDutyCycle(speedR-0.05f);
-					}
-
-				}
-			}*/
-
-
-			/*
-					while(flag3==0) {
-				azimuthAver = azimuthStuff;
-				if(abs(azimuthAver-angle)>10)
-				{
-					if(((azimuthAver-angle)<0))//
-					{
-						codeCheckturnRight((int) abs(azimuthAver - angle));
-						Thread.sleep(3000);
-						//Toast.makeText(getApplicationContext(), Double.toString(azimuthAve), Toast.LENGTH_SHORT).show();
-					}
-					else
-					{
-						codeCheckturnLeft((int) abs(azimuthAver-angle));
-						Thread.sleep(3000);
-						//Toast.makeText(getApplicationContext(),Double.toString(azimuthAve) , Toast.LENGTH_SHORT).show();
-					}
-
-				}
-				else
-				{
-					//Toast.makeText(getApplicationContext(), Double.toString(azimuthAve), Toast.LENGTH_SHORT).show();
-					//Log.v("Orientation", Double.toString(azimuthAve));
-					flag3++;
-				}*/
-
-
-
-
-
-
 
 			public double abs(double val) {
 				if (val < 0) {
@@ -322,79 +237,6 @@ public class IOIO_OTG extends IOIOService {
 					}
 				}
 			}
-
-
-/*
-				A[0] = Encoder[0].read();
-				B[0] = Encoder[1].read();
-				A[1] = Encoder[2].read();
-				B[1] = Encoder[3].read();
-				Forward[0].setDutyCycle(0f);
-				Forward[1].setDutyCycle(speedR);
-
-				flag1=0;
-				while(flag1==0){
-					azimuthAve = MyOrientationListener.azimuthAve;
-					if (azimuthAve <10 && 350 < angle) {
-						if((360-angle + azimuthAve)>5){
-							stopMotors();
-							codeCheckturnLeft((int) (360 - angle + azimuthAve));
-							flag2=1;
-						}
-					}
-					if(azimuthAve>350 && angle<10 && flag2==0){
-						if((360-azimuthAve + angle)>5) {
-							stopMotors();
-							codeCheckturnRight((int) (360 - azimuthAve + angle));
-							flag2=1;
-						}
-					}
-					if(azimuthAve>(angle+5) && flag2==0)
-					{
-						stopMotors();
-						codeCheckturnLeft((int) (azimuthAve - angle));
-						flag2=1;
-						Thread.sleep(500);
-					}
-					if(azimuthAve+5<angle && flag2==0)
-					{
-						stopMotors();
-						codeCheckturnRight((int) (angle - azimuthAve));
-						flag2=1;
-					}
-					if(flag2==1) {
-						Thread.sleep(500);
-						A[0] = Encoder[0].read();
-						B[0] = Encoder[1].read();
-						A[1] = Encoder[2].read();
-						B[1] = Encoder[3].read();
-						Forward[0].setDutyCycle(speedL);
-						Forward[1].setDutyCycle(speedR);
-						flag2 = 0;
-					}
-					if ((A[0] != (temp1 = Encoder[0].read()) || B[0] != (temp2 = Encoder[1].read())) && deg != 0) {
-						deg--;
-						A[0] = temp1;
-						B[0] = temp2;
-					}
-					if ((A[1] != (temp3 = Encoder[2].read()) || B[1] != (temp4 = Encoder[3].read())) && deg1 != 0) {
-						deg1--;
-						A[1] = temp3;
-						B[1] = temp4;
-					}
-					if (deg1 == 0 || deg == 0) {
-						flag1++;
-					}
-				}
-				flag1=0;
-				stopMotors();*/
-				/*if(MapsActivity.esc)
-				{
-					Forward[0].setDutyCycle(0);
-					Forward[1].setDutyCycle(0);
-				}*/
-			//Forward[side].setDutyCycle(0);
-
 
 			public boolean sensorStop()throws InterruptedException,ConnectionLostException
 			{
@@ -514,12 +356,6 @@ public class IOIO_OTG extends IOIOService {
 					}
 				}
 				stopMotors();
-				/*if(MapsActivity.esc)
-				{
-					Forward[0].setDutyCycle(0);
-					Forward[1].setDutyCycle(0);
-				}*/
-				//Forward[side].setDutyCycle(0);
 			}
 
 			public void codeCheckturnLeft(int angle) throws ConnectionLostException, InterruptedException {
@@ -555,12 +391,6 @@ public class IOIO_OTG extends IOIOService {
 				}
 				flag1=0;
 				stopMotors();
-				/*if(MapsActivity.esc)
-				{
-					Backward[0].setDutyCycle(0);
-					Forward[1].setDutyCycle(0);
-				}*/
-				//Forward[side].setDutyCycle(0);
 			}
 
 			public void codeCheckturnRight(int angle) throws ConnectionLostException, InterruptedException {
@@ -597,16 +427,9 @@ public class IOIO_OTG extends IOIOService {
 				}
 				rightflag=0;
 				stopMotors();
-				/*if(MapsActivity.esc)
-				{
-					Backward[1].setDutyCycle(0);
-					Forward[0].setDutyCycle(0);
-				}*/
-				//Forward[side].setDutyCycle(0);
 			}
 			//394 right
 			//393 left for 90 degree turn
-
 
 
 			public double sense()throws ConnectionLostException,InterruptedException
@@ -631,56 +454,6 @@ public class IOIO_OTG extends IOIOService {
 				return Echo.getDuration() * 34000 / 2;
 			}
 
-
-
-
-
-
-
-
-			public void populateGeofences() {
-
-				//Empty list for storing geofences
-				mGeofenceNames = new ArrayList<String>();
-				mGeofenceCoordinates = new ArrayList <LatLng>();
-				mGeofenceList = new ArrayList<Geofence>();
-
-				mGeofenceNames.add("Maynard House");
-				//mGeofenceNames.add("Varey House/The Curve");
-				mGeofenceNames.add("Village Shop/Beaumont Court");
-				mGeofenceNames.add("Santander Bank");
-				//mGeofenceNames.add("Home");
-				//mGeofenceNames.add("France House");
-				mGeofenceNames.add("Turning Point");
-				mGeofenceNames.add("Canalside");
-
-
-				mGeofenceCoordinates.add(MAYNARD_HOUSE);
-				//mGeofenceCoordinates.add(VAREY_CURVE);
-				mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
-				mGeofenceCoordinates.add(SANTANDER);
-				//mGeofenceCoordinates.add(new LatLng(51.557935, 0.002382));
-				//mGeofenceCoordinates.add(new LatLng(51.526590, -0.039799));
-				mGeofenceCoordinates.add(new LatLng(51.526569, -0.039912));
-				mGeofenceCoordinates.add(new LatLng(51.526185, -0.039564));
-
-
-				for(int i=0; i<mGeofenceNames.size(); i++) {
-					mGeofenceList.add(new Geofence.Builder()
-							// Set the request ID of the geofence. This is a string to identify this
-							// geofence.
-							.setRequestId(mGeofenceNames.get(i))
-									//(latitude, longitude, radius_in_meters)
-							.setCircularRegion(mGeofenceCoordinates.get(i).latitude, mGeofenceCoordinates.get(i).longitude, 20)
-									//expiration in milliseconds
-							.setExpirationDuration(300000000)
-							.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-							.build());
-				}
-				//Add geofences to GeofenceStore obect
-				mGeofenceStore = new GeofenceStore(mContext, mGeofenceList); //Send over context and geofence list
-
-			}
 		};
 
 	}
@@ -691,25 +464,6 @@ public class IOIO_OTG extends IOIOService {
 
 		int result = super.onStartCommand(intent, flags, startId);
 
-        /*
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (intent != null && intent.getAction() != null
-                && intent.getAction().equals("stop")) {
-            // User clicked the notification. Need to stop the service.
-            nm.cancel(0);
-            stopSelf();
-        } else {
-            // Service starting. Create a notification.
-            Notification notification = new Notification(
-                    R.drawable.queenmary, "IOIO service running",
-                    System.currentTimeMillis());
-            notification
-                    .setLatestEventInfo(this, "IOIO Service", "Click to stop",
-                            PendingIntent.getService(this, 0, new Intent(
-                                    "stop", null, this, this.getClass()), 0));
-            notification.flags |= Notification.FLAG_ONGOING_EVENT;
-            nm.notify(0, notification);
-        }*/
 		return result;
 	}
 

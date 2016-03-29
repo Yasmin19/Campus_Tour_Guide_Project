@@ -77,7 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final LatLng MAYNARD_HOUSE = new LatLng(51.525095, -0.039004);
     //private static final LatLng VAREY_CURVE = new LatLng(51.525355, -0.039331);
     private static final LatLng VILLAGE_BEAUMONT = new LatLng(51.525579, -0.039499);
-    private static final LatLng SANTANDER = new LatLng(51.526144, -0.039733);
+    private static final LatLng SANTANDER = new LatLng(51.526183, -0.039749);
 
     public static Location[] locName = new Location[5];
     public static float[] locBearing = new float[4];
@@ -154,11 +154,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         start = (Button) findViewById(R.id.start);
         flagButton = (Button) findViewById(R.id.flagButton);
         startGeofences = (Button) findViewById(R.id.startGeofences);
-        left = (EditText) findViewById(R.id.left);
-        right = (EditText) findViewById(R.id.right);
-
-        right.setText("120");
-        left.setText("0");
 
 
         start.setOnClickListener(new Button.OnClickListener() {
@@ -168,16 +163,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 angleLeft = Integer.valueOf(left.getText().toString());
                 angleRight = Integer.valueOf(right.getText().toString());
 
-                Log.v("Angle", "" + angleLeft);
-                Log.v("Angle", "" + angleRight);
-
-                //
-
-                /*
-                //Register the listener with Location Manager to receive location updates
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }*/
 
                 intent = new Intent(mContext, IOIO_OTG.class);
                 //intent.putExtra("pwm", "hello");
@@ -191,11 +176,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 startService(new Intent(getApplicationContext(), MyOrientationListener.class));
 
-                // LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                // LocationListener mlocListener = new MyLocationListener();
-                //mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
-
-                //SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
             }
         });
 
@@ -271,22 +251,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mGeofenceNames.add("Maynard House");
         //mGeofenceNames.add("Varey House/The Curve");
-        mGeofenceNames.add("Village Shop/Beaumont Court");
+        //mGeofenceNames.add("Village Shop/Beaumont Court");
         mGeofenceNames.add("Santander Bank");
-        mGeofenceNames.add("Turning Point");
         mGeofenceNames.add("Canalside");
-        mGeofenceNames.add("Home");
-        mGeofenceNames.add("Test");
 
 
         mGeofenceCoordinates.add(MAYNARD_HOUSE);
         //mGeofenceCoordinates.add(VAREY_CURVE);
-        mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
+        //mGeofenceCoordinates.add(VILLAGE_BEAUMONT);
         mGeofenceCoordinates.add(SANTANDER);
-        mGeofenceCoordinates.add(new LatLng(51.526576, -0.039908));
-        mGeofenceCoordinates.add(new LatLng(51.526185, -0.039564));
-        mGeofenceCoordinates.add(new LatLng(51.522736, -0.043224));
-        mGeofenceCoordinates.add(new LatLng(51.523015, -0.042175));
+        mGeofenceCoordinates.add(new LatLng(51.526143, -0.039552));
 
 
         for (int i = 0; i < mGeofenceNames.size();i++){
@@ -347,65 +321,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-/*
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Do something here if sensor accuracy changes.
-        // You must implement this callback in your code.
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mSensorManager.unregisterListener(this);
-    }
-
-    float mGravity[];
-    float mGeomagnetic[];
-    float orientation[] = new float[3];
-    float Rot[] = new float[9];
-    float I[] = new float[9];
-    boolean success;
-    float azimuth;
-    float pitch_angle;
-    float roll_angle;
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            mGravity = event.values;
-        }
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            mGeomagnetic = event.values;
-        }
-        if (mGravity != null && mGeomagnetic != null) {
-            success = SensorManager.getRotationMatrix(Rot, I, mGravity, mGeomagnetic);
-            if (success) {
-                SensorManager.getOrientation(Rot, orientation);
-                azimuth = orientation[0];
-                pitch_angle = orientation[1];
-                roll_angle = orientation[2];
-
-                azimuthDeg = Math.toDegrees(azimuth);
-
-                if (azimuthDeg < 0) {
-                    azimuth360 = azimuthDeg +360;
-                }
-               // Log.v("Orientation", Double.toString(Math.toDegrees(azimuth360)));
-                Log.v("Orientation", Double.toString(azimuthDeg));
-            }
-
-
-        }
-
-    }*/
 }
 
 
